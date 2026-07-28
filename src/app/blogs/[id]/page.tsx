@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = getPost(params.id);
   if (!post) return { title: 'Blog' };
   return {
-    title: `${post.title} | The School of Mathematics`,
+    title: `${post.title} | Sona Prep`,
     description: post.excerpt,
     openGraph: {
       title: post.title,

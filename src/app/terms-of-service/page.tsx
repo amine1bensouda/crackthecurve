@@ -140,8 +140,8 @@ export default function TermsOfServicePage() {
               If you have any questions about these Terms of Service, please contact us:
             </p>
             <div className="mt-4 space-y-2">
-              <p><strong>Email:</strong> <a href="mailto:contact@schoolofmathematics.com" className="text-gray-900 underline">contact@schoolofmathematics.com</a></p>
-              <p><strong>Support:</strong> <a href="mailto:support@schoolofmathematics.com" className="text-gray-900 underline">support@schoolofmathematics.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:contact@sonaprep.com" className="text-gray-900 underline">contact@sonaprep.com</a></p>
+              <p><strong>Support:</strong> <a href="mailto:support@sonaprep.com" className="text-gray-900 underline">support@sonaprep.com</a></p>
             </div>
           </section>
         </div>
@@ -149,4 +149,3 @@ export default function TermsOfServicePage() {
     </div>
   );
 }
-

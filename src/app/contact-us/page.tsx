@@ -24,16 +24,16 @@ export default function ContactUsPage() {
               <div>
                 <p className="font-semibold mb-1">Email</p>
                 <p className="text-gray-600">
-                  <a href="mailto:contact@schoolofmathematics.com" className="hover:text-gray-900 underline">
-                    contact@schoolofmathematics.com
+                  <a href="mailto:contact@sonaprep.com" className="hover:text-gray-900 underline">
+                    contact@sonaprep.com
                   </a>
                 </p>
               </div>
               <div>
                 <p className="font-semibold mb-1">Support</p>
                 <p className="text-gray-600">
-                  <a href="mailto:support@schoolofmathematics.com" className="hover:text-gray-900 underline">
-                    support@schoolofmathematics.com
+                  <a href="mailto:support@sonaprep.com" className="hover:text-gray-900 underline">
+                    support@sonaprep.com
                   </a>
                 </p>
               </div>
@@ -104,4 +104,3 @@ export default function ContactUsPage() {
     </div>
   );
 }
-

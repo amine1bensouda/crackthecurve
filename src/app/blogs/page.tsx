@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Blog | Math Tips, Exam Prep & Free Practice',
   description: `Read our latest articles, exam tips, and free practice guides from ${SITE_NAME}. ACT, SAT, algebra, and more.`,
   openGraph: {
-    title: 'Blog | The School of Mathematics',
+    title: 'Blog | Sona Prep',
     description: `Articles and tips to help you score higher. Free math practice for ACT, SAT, and more.`,
   },
 };

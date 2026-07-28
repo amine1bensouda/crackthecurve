@@ -1,8 +1,8 @@
 // Site constants
 
-export const SITE_NAME = 'The School of Mathematics';
+export const SITE_NAME = 'Sona Prep';
 export const SITE_DESCRIPTION = 'Test your knowledge with our interactive mathematics quizzes';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theschoolofmathematics.com';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sonaprep.com';
 
 // Difficulty levels (Fundamental, Intermediate, Advanced + legacy for backward compatibility)
 export const DIFFICULTY_LEVELS: Record<string, { label: string; color: string; icon: string }> = {
@@ -43,4 +43,3 @@ export const ADSENSE_CONFIG = {
 
 // Temps de revalidation ISR
 export const REVALIDATE_TIME = parseInt(process.env.NEXT_REVALIDATE_TIME || '3600', 10);
-

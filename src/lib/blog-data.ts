@@ -147,7 +147,7 @@ const posts: BlogPost[] = [
       <p>Free resources let you practice as much as you need, try different topics, and build confidence before test day.</p>
       <h2>What Makes a Good Math Quiz Site</h2>
       <p>Look for sites that offer timed quizzes, clear explanations, and coverage of algebra, geometry, and word problems similar to real exams.</p>
-      <p>The School of Mathematics offers free practice for ACT, SAT, and more — no sign-up required to start.</p>
+      <p>Sona Prep offers free practice for ACT, SAT, and more — no sign-up required to start.</p>
     `,
   },
   {

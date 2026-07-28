@@ -7,8 +7,8 @@ const nextConfig = {
     // Optimisation d'images activée pour la production
     unoptimized: false,
     domains: [
-      'theschoolofmathematics.com',
-      'www.theschoolofmathematics.com',
+      'sonaprep.com',
+      'www.sonaprep.com',
       'picsum.photos',
       'images.unsplash.com',
       process.env.WORDPRESS_API_URL?.replace('https://', '').replace('http://', '').split('/')[0] || ''
@@ -16,11 +16,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.theschoolofmathematics.com',
+        hostname: '**.sonaprep.com',
       },
       {
         protocol: 'http',
-        hostname: '**.theschoolofmathematics.com',
+        hostname: '**.sonaprep.com',
       },
       {
         protocol: 'https',
@@ -75,4 +75,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-
