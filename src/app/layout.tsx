@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
@@ -8,8 +7,6 @@ import NavigationProgress from '@/components/Layout/NavigationProgress';
 import ConditionalLayout from '@/components/Layout/ConditionalLayout';
 import CookieBanner from '@/components/Layout/CookieBanner';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/constants';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
@@ -60,7 +57,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <GoogleAnalytics />
         <Suspense fallback={null}>
           <NavigationProgress />
@@ -72,4 +69,3 @@ export default function RootLayout({
     </html>
   );
 }
-
