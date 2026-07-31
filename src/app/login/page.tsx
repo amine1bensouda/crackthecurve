@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/lib/auth-client';
 import { SITE_NAME } from '@/lib/constants';
+import Logo from '@/components/Layout/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,12 +34,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-[#fdfbf7] px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <Link href="/" className="mb-6 inline-flex items-center gap-2.5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[linear-gradient(135deg,#3f7267,#2c3c5e)] text-lg font-bold text-white">
-              SP
-            </span>
-            <span className="font-display text-xl font-bold text-[#2c3c5e]">{SITE_NAME}</span>
-          </Link>
+          <div className="mb-6 flex justify-center">
+            <Logo size="lg" />
+          </div>
           <h1 className="font-display mt-6 text-3xl font-semibold text-[#2c3c5e]">Welcome Back</h1>
           <p className="mt-2 text-[#6b7180]">Sign in to continue to {SITE_NAME}</p>
         </div>

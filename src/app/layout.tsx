@@ -53,9 +53,12 @@ export const metadata: Metadata = {
     google: 'aqePUc7IOnNBwXrNGJFYlioTwHiWw7VugJH7lJ_BmVc',
   },
   icons: {
-    icon: '/logo_maths.svg',
-    shortcut: '/logo_maths.svg',
-    apple: '/logo_maths.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/logo-sonaprep.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/apple-icon.svg',
   },
 };
 

@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { SITE_NAME } from '@/lib/constants';
 import { getCurrentUser } from '@/lib/auth-client';
+import Logo from '@/components/Layout/Logo';
 
 const links = [
   ['/', 'Home'],
@@ -28,12 +28,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#eae2d2] bg-[#fdfbf7]">
       <div className="mx-auto flex max-w-[1160px] items-center justify-between px-6 py-[18px]">
-        <Link href="/" className="font-display flex items-center gap-[9px] text-[1.25rem] font-bold text-[#2c3c5e]">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(135deg,#3f7267,#2c3c5e)] font-sans text-[0.78rem] font-bold text-white">
-            SP
-          </span>
-          {SITE_NAME}
-        </Link>
+        <Logo size="md" />
 
         <nav className="hidden items-center gap-[30px] md:flex">
           {links.map(([href, label]) => (

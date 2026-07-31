@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SITE_NAME } from '@/lib/constants';
+import Logo from '@/components/Layout/Logo';
 
 const navigation = [
   ['/', 'Home'],
@@ -22,7 +23,7 @@ export default function Footer() {
       <div className="mx-auto max-w-[1160px]">
         <div className="grid gap-10 border-b border-white/[0.12] pb-9 md:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <div className="font-display text-[1.15rem] font-semibold text-white">{SITE_NAME}</div>
+            <Logo href="/" variant="dark" size="sm" />
             <p className="footer-desc mt-3 max-w-[280px] text-[0.88rem] leading-relaxed">
               Structured license and certification exam preparation, with rigorous, board-mapped
               practice questions to help you pass.
