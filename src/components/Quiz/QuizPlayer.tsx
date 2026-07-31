@@ -586,7 +586,7 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
   if (!currentQuestion) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">Loading quiz...</p>
+        <p className="text-[#6b7180]">Loading quiz...</p>
       </div>
     );
   }
@@ -607,7 +607,7 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="hidden lg:flex absolute top-0 left-4 z-50 p-3 rounded-xl shadow-lg transition-all duration-300 bg-white text-gray-900 border-2 border-gray-300 hover:border-gray-900 hover:shadow-xl transform hover:scale-110 active:scale-95"
+          className="hidden lg:flex absolute top-0 left-4 z-50 p-3 rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] transition-all duration-300 bg-white text-[#2c3c5e] border-2 border-[#eae2d2] hover:border-[#2c3c5e] hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)] transform hover:scale-110 active:scale-95"
           aria-label="Show sidebar"
           title="Show question list"
         >
@@ -637,16 +637,16 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
       <div className="flex-1 max-w-4xl mx-auto px-4 transition-all duration-300">
       {/* Alerte si le temps est presque écoulé */}
       {quizTimeRemaining !== null && quizTimeRemaining <= 60 && quizTimeRemaining > 0 && !quizCompleted && (
-        <div className="mb-6 bg-red-50 border-2 border-red-500 rounded-xl p-4 animate-pulse">
+        <div className="mb-6 bg-[#faf0f3] border-2 border-[#95586b] rounded-[10px] p-4 animate-pulse">
           <div className="flex items-center gap-3">
-            <svg className="w-6 h-6 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-[#95586b] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div className="flex-1">
-              <p className="font-bold text-red-900">
+              <p className="font-bold text-[#95586b]">
                 ⚠️ Warning! Less than one minute remaining!
               </p>
-              <p className="text-sm text-red-700 mt-1">
+              <p className="text-sm text-[#95586b] mt-1">
                 The quiz will close automatically when time runs out.
               </p>
             </div>
@@ -655,17 +655,17 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
       )}
       
       {/* Barre de progression moderne */}
-      <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+      <div className="mb-8 bg-white rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] p-6 border border-[#eae2d2]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center text-white font-bold shadow-lg">
+            <div className="w-12 h-12 rounded-[10px] bg-[#2c3c5e] flex items-center justify-center text-white font-bold shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
               {currentQuestionIndex + 1}
             </div>
             <div>
-              <span className="text-base font-semibold text-gray-900 block">
+              <span className="text-base font-semibold text-[#2c3c5e] block">
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-[#6b7180]">
                 {totalQuestions - (currentQuestionIndex + 1)} remaining
               </span>
             </div>
@@ -673,12 +673,12 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
           <div className="flex items-center gap-6">
             {/* Timer global du quiz */}
             {quizTimeRemaining !== null ? (
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-semibold transition-all duration-300 ${
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-[10px] border-2 font-semibold transition-all duration-300 ${
                 quizTimeRemaining <= 60 
-                  ? 'border-red-500 bg-red-50 text-red-700 animate-pulse shadow-lg' 
+                  ? 'border-[#95586b] bg-[#faf0f3] text-[#95586b] animate-pulse shadow-[0_2px_10px_rgba(44,60,94,0.04)]' 
                   : quizTimeRemaining <= 180
-                  ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-md'
-                  : 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'border-[#c79a55] bg-[#faf6ee] text-[#c79a55] shadow-[0_2px_10px_rgba(44,60,94,0.04)]'
+                  : 'border-[#2c3c5e] bg-[#f8f2e7] text-[#2c3c5e]'
               }`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -690,7 +690,7 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
               </div>
             ) : (
               // Indicateur pour quiz sans limite de temps
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-gray-50 text-gray-600 font-semibold">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-[10px] border-2 border-[#eae2d2] bg-[#f8f2e7] text-[#6b7180] font-semibold">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -699,12 +699,12 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
             )}
             {/* Timer pour la question actuelle */}
             {timeRemaining !== null && (
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-semibold ${
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-[10px] border-2 font-semibold ${
                 timeRemaining <= 10 
-                  ? 'border-red-500 bg-red-50 text-red-700 animate-pulse' 
+                  ? 'border-[#95586b] bg-[#faf0f3] text-[#95586b] animate-pulse' 
                   : timeRemaining <= 30
-                  ? 'border-orange-500 bg-orange-50 text-orange-700'
-                  : 'border-gray-900 bg-gray-50 text-gray-900'
+                  ? 'border-[#c79a55] bg-[#faf6ee] text-[#c79a55]'
+                  : 'border-[#2c3c5e] bg-[#f8f2e7] text-[#2c3c5e]'
               }`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -714,16 +714,16 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
               </div>
             )}
             <div className="text-right">
-              <span className="text-2xl font-bold text-gray-900 block">
+              <span className="text-2xl font-bold text-[#2c3c5e] block">
                 {Math.round(progressPercentage)}%
               </span>
-              <span className="text-xs text-gray-500">Progress</span>
+              <span className="text-xs text-[#6b7180]">Progress</span>
             </div>
           </div>
         </div>
         
         {/* Barre de progression animée */}
-        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="relative w-full h-2 bg-[#eae2d2] rounded-full overflow-hidden">
           <div
             className="progress-fill relative h-full rounded-full"
             style={{ width: `${progressPercentage}%` }}
@@ -734,7 +734,7 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
         </div>
         
         <div className="mt-4 text-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-[#6b7180]">
             {Object.keys(selectedAnswers).length} / {totalQuestions} answered
           </span>
         </div>
@@ -754,16 +754,16 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
       </div>
 
       {/* Boutons de navigation modernisés */}
-      <div className="flex justify-between items-center mt-8 gap-4 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+      <div className="flex justify-between items-center mt-8 gap-4 bg-white rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] p-6 border border-[#eae2d2]">
         <button
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
           className={`
-            flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200
+            flex items-center gap-2 px-6 py-3 rounded-[10px] font-semibold transition-all duration-200
             ${
               currentQuestionIndex === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-50 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                ? 'bg-[#f8f2e7] text-[#6b7180] cursor-not-allowed opacity-50'
+                : 'bg-white text-[#2c3c5e] border-2 border-[#eae2d2] hover:border-[#2c3c5e] hover:bg-[#f8f2e7] transform hover:scale-105 active:scale-95 shadow-[0_2px_10px_rgba(44,60,94,0.04)] hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)]'
             }
           `}
         >
@@ -776,11 +776,11 @@ export default function QuizPlayer({ quiz, onSkipQuestion }: QuizPlayerProps) {
         <button
           onClick={handleNext}
           className={`
-            flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-all duration-200 shadow-lg
+            flex items-center gap-2 px-8 py-4 rounded-[10px] font-bold transition-all duration-200 shadow-[0_2px_10px_rgba(44,60,94,0.04)]
             ${
               selectedAnswer
-                ? 'bg-gray-900 text-white hover:bg-black transform hover:scale-105 active:scale-95 hover:shadow-xl'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 transform hover:scale-105 active:scale-95 border-2 border-gray-400'
+                ? 'bg-[#2c3c5e] text-white hover:bg-[#1d2a45] transform hover:scale-105 active:scale-95 hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)]'
+                : 'bg-[#eae2d2] text-[#6b7180] hover:bg-[#eae2d2] transform hover:scale-105 active:scale-95 border-2 border-[#eae2d2]'
             }
           `}
         >

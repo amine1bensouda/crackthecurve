@@ -78,9 +78,9 @@ export default function NavigationProgress() {
   if (!isLoading && !isPending) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9998] h-1 bg-gray-100">
+    <div className="fixed left-0 right-0 top-0 z-[9998] h-1 bg-[#eae2d2]">
       <div
-        className="h-full bg-gray-900 transition-all duration-300 ease-out shadow-lg"
+        className="h-full bg-[linear-gradient(90deg,#3f7267,#2c3c5e)] transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

@@ -14,7 +14,16 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  keywords: ['quiz', 'test', 'mathematics', 'math', 'education', 'learning'],
+  keywords: [
+    'license exam prep',
+    'certification practice',
+    'PE',
+    'NCLEX',
+    'CPA',
+    'PMP',
+    'bar exam',
+    'SonaPrep',
+  ],
   authors: [{ name: SITE_NAME }],
   openGraph: {
     type: 'website',
@@ -57,6 +66,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>
         <GoogleAnalytics />
         <Suspense fallback={null}>

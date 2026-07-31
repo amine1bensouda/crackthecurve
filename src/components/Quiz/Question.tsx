@@ -28,7 +28,7 @@ export default function Question({
   if (!question) {
     return (
       <div className="card-modern p-8 text-center">
-        <p className="text-gray-600">Question not found</p>
+        <p className="text-[#6b7180]">Question not found</p>
       </div>
     );
   }
@@ -112,13 +112,13 @@ export default function Question({
     
     return (
       <div className="card-modern p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">{questionText}</h2>
+        <h2 className="text-2xl font-bold text-[#2c3c5e] mb-4">{questionText}</h2>
         <div className="space-y-2">
-          <p className="text-red-600 font-semibold">No answers available for this question.</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-[#95586b] font-semibold">No answers available for this question.</p>
+          <p className="text-sm text-[#6b7180]">
             Question ID: {question.id} | Question #{questionNumber}
           </p>
-          <p className="text-xs text-gray-400 mt-4">
+          <p className="text-xs text-[#6b7180] mt-4">
             Please check the console for more details about this issue.
           </p>
         </div>
@@ -127,25 +127,25 @@ export default function Question({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 border border-gray-200 relative overflow-hidden">
+    <div className="bg-white rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] p-8 md:p-10 border border-[#eae2d2] relative overflow-hidden">
       {/* Effet de fond décoratif */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gray-100 rounded-full blur-3xl opacity-30 -z-0"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8f2e7] rounded-full blur-3xl opacity-30 -z-0"></div>
       
       <div className="relative z-10">
         {/* En-tête de la question */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-gray-900 flex items-center justify-center shadow-lg">
+            <div className="w-14 h-14 rounded-[10px] bg-[#2c3c5e] flex items-center justify-center shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
               <span className="text-white font-bold text-lg">{questionNumber}</span>
             </div>
             <div>
-              <span className="text-base font-semibold text-gray-900 block">Question {questionNumber}</span>
-              <span className="text-sm text-gray-500">of {totalQuestions}</span>
+              <span className="text-base font-semibold text-[#2c3c5e] block">Question {questionNumber}</span>
+              <span className="text-sm text-[#6b7180]">of {totalQuestions}</span>
             </div>
           </div>
           {points && (
-            <div className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-300">
-              <span className="text-sm font-bold text-gray-900">
+            <div className="px-4 py-2 rounded-[10px] bg-[#f8f2e7] border border-[#eae2d2]">
+              <span className="text-sm font-bold text-[#2c3c5e]">
                 {points} point{points !== 1 ? 's' : ''}
               </span>
             </div>
@@ -154,7 +154,7 @@ export default function Question({
 
         {/* Média (image) si présent */}
         {mediaUrl && (
-          <div className="relative w-full h-72 mb-6 rounded-2xl overflow-hidden shadow-lg group">
+          <div className="relative w-full h-72 mb-6 rounded-[10px] overflow-hidden shadow-[0_2px_10px_rgba(44,60,94,0.04)] group">
             <Image
               src={mediaUrl}
               alt={questionText}
@@ -169,14 +169,14 @@ export default function Question({
         {/* Texte de la question */}
         <div className="mb-8">
           {hasImages ? (
-            <div className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed">
+            <div className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
               <HtmlWithMathRenderer 
                 html={questionText || ''}
                 className="prose prose-lg max-w-none"
               />
             </div>
           ) : (
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
               <MathRenderer text={cleanedQuestionText || ''} />
             </h2>
           )}
@@ -185,7 +185,7 @@ export default function Question({
         {/* Description si présente */}
         {questionContent && (
           <div
-            className="prose prose-sm max-w-none mb-8 text-gray-700 leading-relaxed"
+            className="prose prose-sm max-w-none mb-8 text-[#6b7180] leading-relaxed"
             dangerouslySetInnerHTML={{ __html: questionContent }}
           />
         )}
@@ -194,7 +194,7 @@ export default function Question({
         {isTextInput ? (
           <div className="space-y-4">
             <div>
-              <label htmlFor="text-answer" className="block text-sm font-medium text-gray-700 mb-3">
+              <label htmlFor="text-answer" className="block text-sm font-medium text-[#6b7180] mb-3">
                 Your Answer:
               </label>
               <textarea
@@ -204,34 +204,34 @@ export default function Question({
                 disabled={showResult}
                 rows={4}
                 className={`
-                  w-full px-4 py-3 border-2 rounded-xl transition-all duration-300
+                  w-full px-4 py-3 border-2 rounded-[10px] transition-all duration-300
                   ${showResult 
-                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
-                    : 'border-gray-300 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none'
+                    ? 'border-[#eae2d2] bg-[#f8f2e7] cursor-not-allowed' 
+                    : 'border-[#eae2d2] bg-white focus:border-[#2c3c5e] focus:ring-2 focus:ring-[#2c3c5e] focus:outline-none'
                   }
-                  text-gray-900 placeholder-gray-400 resize-y
+                  text-[#2c3c5e] placeholder-[#6b7180] resize-y
                 `}
                 placeholder="Type your answer here..."
               />
               {showResult && (
                 <div className="mt-4 space-y-3">
                   {answers.length > 0 && answers[0]?.texte && (
-                    <div className={`p-4 rounded-xl border-l-4 ${
+                    <div className={`p-4 rounded-[10px] border-l-4 ${
                       correctAnswer && selectedAnswer &&
                       selectedAnswer.replace('text:', '').toLowerCase().trim() === (answers[0].texte || '').replace(/<[^>]*>/g, '').toLowerCase().trim()
-                        ? 'bg-green-50 border-green-500'
-                        : 'bg-gray-50 border-gray-900'
+                        ? 'bg-[#f0f7f5] border-[#3f7267]'
+                        : 'bg-[#f8f2e7] border-[#2c3c5e]'
                     }`}>
-                      <p className="text-sm font-semibold text-gray-900 mb-2">Expected Answer:</p>
-                      <div className="text-sm text-gray-700">
+                      <p className="text-sm font-semibold text-[#2c3c5e] mb-2">Expected Answer:</p>
+                      <div className="text-sm text-[#6b7180]">
                         <HtmlWithMathRenderer html={answers[0].texte} />
                       </div>
                     </div>
                   )}
                   {explication && (
-                    <div className="p-4 rounded-xl bg-gray-50 border-l-4 border-gray-900">
-                      <p className="text-sm font-semibold text-gray-900 mb-2">Explanation:</p>
-                      <p className="text-sm text-gray-700">
+                    <div className="p-4 rounded-[10px] bg-[#f8f2e7] border-l-4 border-[#2c3c5e]">
+                      <p className="text-sm font-semibold text-[#2c3c5e] mb-2">Explanation:</p>
+                      <p className="text-sm text-[#6b7180]">
                         <MathRenderer text={explication} />
                       </p>
                     </div>
@@ -251,15 +251,15 @@ export default function Question({
 
   const getButtonStyles = () => {
     if (showCorrect) {
-      return 'border-green-500 bg-green-50 shadow-green-100';
+      return 'border-[#3f7267] bg-[#f0f7f5] shadow-none';
     }
     if (showIncorrect) {
-      return 'border-red-500 bg-red-50 shadow-red-100';
+      return 'border-[#95586b] bg-[#faf0f3] shadow-none';
     }
     if (isSelected && !showResult) {
-      return 'border-gray-900 bg-gray-50 shadow-gray-100';
+      return 'border-[#2c3c5e] bg-[#f8f2e7] shadow-none';
     }
-    return 'border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50';
+    return 'border-[#eae2d2] bg-white hover:border-[#3f7267] hover:bg-[#f8f2e7]';
   };
 
             return (
@@ -268,20 +268,20 @@ export default function Question({
                 onClick={() => !showResult && onAnswerSelect(answerKey)}
                 disabled={showResult}
                 className={`
-                  w-full text-left p-6 rounded-xl border-2 transition-all duration-300 transform
+                  w-full text-left p-6 rounded-[10px] border-2 transition-all duration-300 transform
                   ${getButtonStyles()}
-                  ${!showResult && 'hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-md hover:shadow-lg'}
+                  ${!showResult && 'hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(44,60,94,0.04)] hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)]'}
                   ${showResult && 'cursor-not-allowed'}
                 `}
               >
                 <div className="flex items-start gap-4">
                   {/* Indicateur de réponse (A, B, C...) */}
                   <div className={`
-                    flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300
-                    ${showCorrect && 'bg-green-600 text-white shadow-lg'}
-                    ${showIncorrect && 'bg-red-600 text-white shadow-lg'}
-                    ${isSelected && !showResult && 'bg-gray-900 text-white shadow-lg'}
-                    ${!isSelected && !showResult && 'bg-gray-100 text-gray-600 border-2 border-gray-300'}
+                    flex-shrink-0 w-10 h-10 rounded-[10px] flex items-center justify-center font-bold text-sm transition-all duration-300
+                    ${showCorrect && 'bg-[#3f7267] text-white shadow-[0_2px_10px_rgba(44,60,94,0.04)]'}
+                    ${showIncorrect && 'bg-[#95586b] text-white shadow-[0_2px_10px_rgba(44,60,94,0.04)]'}
+                    ${isSelected && !showResult && 'bg-[#2c3c5e] text-white shadow-[0_2px_10px_rgba(44,60,94,0.04)]'}
+                    ${!isSelected && !showResult && 'bg-[#f8f2e7] text-[#6b7180] border-2 border-[#eae2d2]'}
                   `}>
                     {showResult && isCorrect && (
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -304,7 +304,7 @@ export default function Question({
                   {/* Contenu du choix : image + texte (images bien visibles parmi les choix) */}
                   <div className="flex-1 min-w-0">
                     {answer.imageUrl && (
-                      <div className="mb-3 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 max-w-sm max-h-40 w-full">
+                      <div className="mb-3 rounded-[10px] overflow-hidden border border-[#eae2d2] bg-[#f8f2e7] max-w-sm max-h-40 w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={answer.imageUrl}
@@ -313,11 +313,11 @@ export default function Question({
                         />
                       </div>
                     )}
-                    <div className="font-semibold text-gray-900 text-lg leading-relaxed [&_.ql-editor]:p-0">
+                    <div className="font-semibold text-[#2c3c5e] text-lg leading-relaxed [&_.ql-editor]:p-0">
                       <HtmlWithMathRenderer html={answer.texte || ''} />
                     </div>
                     {showResult && answer.explication && (
-                      <div className="text-sm text-gray-600 mt-3 italic leading-relaxed bg-gray-50 p-3 rounded-lg">
+                      <div className="text-sm text-[#6b7180] mt-3 italic leading-relaxed bg-[#f8f2e7] p-3 rounded-lg">
                         💡 <HtmlWithMathRenderer html={answer.explication || ''} />
                       </div>
                     )}
@@ -326,7 +326,7 @@ export default function Question({
                   {/* Badge correcte */}
                   {showCorrect && (
                     <div className="flex-shrink-0">
-                      <span className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold">
+                      <span className="px-3 py-1.5 rounded-lg bg-[#3f7267] text-white text-xs font-bold">
                         ✓ Correct
                       </span>
                     </div>
@@ -340,12 +340,12 @@ export default function Question({
 
         {/* Explication générale si présente et résultat affiché */}
         {showResult && explication && (
-          <div className="mt-8 p-6 rounded-xl bg-gray-50 border-l-4 border-gray-900 shadow-md animate-fade-in">
-            <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <div className="mt-8 p-6 rounded-[10px] bg-[#f8f2e7] border-l-4 border-[#2c3c5e] shadow-[0_2px_10px_rgba(44,60,94,0.04)] animate-fade-in">
+            <p className="text-sm font-bold text-[#2c3c5e] mb-3 flex items-center gap-2">
               <span className="text-lg">💡</span>
               Detailed Explanation:
             </p>
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-sm text-[#6b7180] leading-relaxed">
               <MathRenderer text={explication || ''} />
             </p>
           </div>

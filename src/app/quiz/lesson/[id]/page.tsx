@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/Layout/Navigation';
-import BackgroundPattern from '@/components/Layout/BackgroundPattern';
 import SafeHtmlRenderer from '@/components/Common/SafeHtmlRenderer';
+import LoadingSpinner from '@/components/Layout/LoadingSpinner';
 
 interface Lesson {
   id: string;
@@ -56,11 +56,11 @@ export default function LessonPage() {
 
   if (loading) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="relative min-h-screen bg-[#fdfbf7]">
         <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <div className="text-5xl mb-4 animate-spin">⏳</div>
-          <p className="text-gray-700">Loading lesson...</p>
+        <div className="mx-auto flex max-w-[1160px] flex-col items-center gap-5 px-6 py-16">
+          <LoadingSpinner size="lg" />
+          <p className="font-display text-lg font-semibold text-[#2c3c5e]">Loading lesson...</p>
         </div>
       </div>
     );
@@ -68,11 +68,11 @@ export default function LessonPage() {
 
   if (!lesson) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="relative min-h-screen bg-[#fdfbf7]">
         <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-gray-700 mb-4">Lesson not found.</p>
-          <Link href="/quiz" className="text-indigo-600 hover:underline">Back to courses</Link>
+        <div className="mx-auto max-w-[1160px] px-6 py-16 text-center">
+          <p className="mb-4 text-[#6b7180]">Lesson not found.</p>
+          <Link href="/quiz" className="font-medium text-[#3f7267] hover:text-[#2c3c5e]">Back to courses</Link>
         </div>
       </div>
     );
@@ -81,46 +81,45 @@ export default function LessonPage() {
   const courseSlug = lesson.module.course.slug;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-violet-50">
-      <BackgroundPattern variant="luxury" opacity={0.08} />
+    <div className="relative min-h-screen bg-[#fdfbf7]">
       <Navigation />
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-4xl relative z-10">
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/" className="hover:text-indigo-600">Home</Link>
+      <div className="relative z-10 mx-auto max-w-4xl px-6 py-6 sm:py-10">
+        <nav className="mb-6 text-sm text-[#6b7180]">
+          <Link href="/" className="hover:text-[#2c3c5e]">Home</Link>
           <span className="mx-1.5">/</span>
-          <Link href="/quiz" className="hover:text-indigo-600">Courses</Link>
+          <Link href="/quiz" className="hover:text-[#2c3c5e]">Courses</Link>
           <span className="mx-1.5">/</span>
-          <Link href={`/quiz/course/${courseSlug}`} className="hover:text-indigo-600">{lesson.module.course.title}</Link>
+          <Link href={`/quiz/course/${courseSlug}`} className="hover:text-[#2c3c5e]">{lesson.module.course.title}</Link>
           <span className="mx-1.5">/</span>
-          <span className="text-gray-900 font-medium">{lesson.title}</span>
+          <span className="font-medium text-[#2c3c5e]">{lesson.title}</span>
         </nav>
 
-        <article className="rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 shadow-xl overflow-hidden">
+        <article className="overflow-hidden rounded-[10px] border border-[#eae2d2] bg-white shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
           {lesson.featuredImageUrl && (
-            <div className="aspect-video w-full bg-gray-100">
+            <div className="aspect-video w-full bg-[#f8f2e7]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={lesson.featuredImageUrl}
                 alt=""
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
           )}
           <div className="p-6 sm:p-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{lesson.title}</h1>
+            <h1 className="font-display mb-4 text-2xl font-semibold text-[#2c3c5e] sm:text-3xl">{lesson.title}</h1>
 
             {lesson.videoUrl && (
-              <div className="mb-6 rounded-xl overflow-hidden bg-black">
+              <div className="mb-6 overflow-hidden rounded-[10px] bg-black">
                 <video
                   src={lesson.videoUrl}
                   controls
-                  className="w-full aspect-video"
+                  className="aspect-video w-full"
                   poster={lesson.featuredImageUrl ?? undefined}
                 >
                   Your browser does not support the video tag.
                 </video>
                 {lesson.videoPlaybackSeconds != null && lesson.videoPlaybackSeconds > 0 && (
-                  <p className="text-xs text-gray-400 px-3 py-2">
+                  <p className="px-3 py-2 text-xs text-[#6b7180]">
                     Duration: {Math.floor(lesson.videoPlaybackSeconds / 60)} min {lesson.videoPlaybackSeconds % 60} s
                   </p>
                 )}
@@ -128,14 +127,14 @@ export default function LessonPage() {
             )}
 
             {lesson.pdfUrl && (
-              <div className="mb-6 rounded-xl border border-gray-200 overflow-hidden bg-gray-100">
-                <div className="flex items-center justify-between gap-2 px-4 py-3 bg-white border-b border-gray-200">
-                  <span className="text-sm font-medium text-gray-700">PDF</span>
+              <div className="mb-6 overflow-hidden rounded-[10px] border border-[#eae2d2] bg-[#f8f2e7]">
+                <div className="flex items-center justify-between gap-2 border-b border-[#eae2d2] bg-white px-4 py-3">
+                  <span className="text-sm font-medium text-[#2c3c5e]">PDF</span>
                   <a
                     href={lesson.pdfUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                    className="text-sm font-medium text-[#3f7267] hover:text-[#2c3c5e]"
                   >
                     Open in new tab
                   </a>
@@ -143,13 +142,13 @@ export default function LessonPage() {
                 <iframe
                   src={`${lesson.pdfUrl}#view=FitH`}
                   title="Lesson PDF"
-                  className="w-full min-h-[60vh] border-0 bg-white"
+                  className="min-h-[60vh] w-full border-0 bg-white"
                 />
               </div>
             )}
 
             {lesson.content && (
-              <div className="prose prose-gray max-w-none">
+              <div className="prose max-w-none text-[#6b7180]">
                 <SafeHtmlRenderer html={lesson.content} renderMath />
               </div>
             )}
@@ -159,7 +158,7 @@ export default function LessonPage() {
         <div className="mt-6">
           <Link
             href={`/quiz/course/${courseSlug}`}
-            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium"
+            className="inline-flex items-center gap-2 font-medium text-[#3f7267] hover:text-[#2c3c5e]"
           >
             ← Back to {lesson.module.course.title}
           </Link>

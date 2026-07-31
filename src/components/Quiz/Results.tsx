@@ -60,57 +60,54 @@ export default function Results({
   // Déterminer le message et l'icône selon le score
   let message = '';
   let icon = '';
-  let gradientClass = '';
+  let scoreBgClass = '';
   let badgeClass = '';
 
   if (percentage >= 90) {
     message = 'Excellent!';
     icon = '🌟';
-    gradientClass = 'from-yellow-400 via-amber-500 to-orange-500';
-    badgeClass = 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border-yellow-300';
+    scoreBgClass = 'bg-[#c79a55]';
+    badgeClass = 'bg-[#faf6ee] text-[#c79a55] border-[#c79a55]/40';
   } else if (percentage >= 80) {
     message = 'Very Good!';
     icon = '👏';
-    gradientClass = 'from-green-400 via-emerald-500 to-teal-500';
-    badgeClass = 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300';
+    scoreBgClass = 'bg-[#3f7267]';
+    badgeClass = 'bg-[#f0f7f5] text-[#3f7267] border-[#3f7267]/40';
   } else if (percentage >= minimumScore) {
     message = 'Well Done!';
     icon = '🎯';
-    gradientClass = 'from-blue-400 via-primary-500 to-indigo-500';
-    badgeClass = 'bg-gradient-to-r from-blue-100 to-primary-100 text-blue-800 border-blue-300';
+    scoreBgClass = 'bg-[#2c3c5e]';
+    badgeClass = 'bg-[#f8f2e7] text-[#2c3c5e] border-[#2c3c5e]/30';
   } else {
     message = 'Keep Up the Effort!';
     icon = '📚';
-    gradientClass = 'from-orange-400 via-red-500 to-pink-500';
-    badgeClass = 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border-orange-300';
+    scoreBgClass = 'bg-[#95586b]';
+    badgeClass = 'bg-[#faf0f3] text-[#95586b] border-[#95586b]/40';
   }
 
   return (
-    <div className="max-w-3xl mx-auto animate-scale-in">
-      <div className="card-modern p-8 md:p-12 relative overflow-hidden">
-        {/* Effet de fond animé */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 blur-3xl -z-0 animate-pulse-glow`}></div>
-        
+    <div className="mx-auto max-w-3xl animate-scale-in">
+      <div className="card-modern relative overflow-hidden p-8 md:p-12">
         <div className="relative z-10">
           {/* En-tête avec icône */}
-          <div className="text-center mb-10">
-            <div className="inline-block text-7xl mb-6 animate-bounce-slow">
+          <div className="mb-10 text-center">
+            <div className="mb-6 inline-block animate-bounce-slow text-7xl">
               {icon}
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 text-shadow">
+            <h2 className="font-display mb-3 text-4xl font-semibold text-[#2c3c5e] md:text-5xl">
               {message}
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-[#6b7180]">
               You have completed the quiz
             </p>
-            <p className="text-sm text-gray-500 mt-1 font-medium">
+            <p className="mt-1 text-sm font-medium text-[#6b7180]">
               {quizTitle}
             </p>
             {/* Message si le temps est écoulé */}
             {results.timeExpired && (
-              <div className="mt-4 bg-orange-50 border-2 border-orange-300 rounded-xl p-4 inline-block">
-                <div className="flex items-center gap-2 text-orange-800">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mt-4 inline-block rounded-[10px] border border-[#c79a55]/40 bg-[#faf6ee] p-4">
+                <div className="flex items-center gap-2 text-[#c79a55]">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="font-semibold">Time expired! The quiz was automatically closed.</span>
@@ -119,54 +116,51 @@ export default function Results({
             )}
           </div>
 
-          {/* Score principal avec animation */}
-          <div className={`relative mb-10 rounded-2xl p-8 md:p-12 bg-gradient-to-br ${gradientClass} text-white shadow-2xl overflow-hidden`}>
-            {/* Effet de brillance */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-            
+          {/* Score principal */}
+          <div className={`relative mb-10 overflow-hidden rounded-[10px] p-8 text-white md:p-12 ${scoreBgClass}`}>
             <div className="relative z-10 text-center">
-              <div className="text-7xl md:text-8xl font-black mb-4 text-shadow-lg">
+              <div className="mb-4 text-7xl font-black md:text-8xl">
                 {percentage}%
               </div>
-              <div className="text-xl md:text-2xl opacity-95 font-semibold">
+              <div className="text-xl font-semibold opacity-95 md:text-2xl">
                 {results.correctAnswers} out of {results.totalQuestions} correct answers
               </div>
             </div>
           </div>
 
           {/* Statistiques détaillées */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 text-center border-2 border-green-200 shadow-md transform hover:scale-105 transition-transform">
-              <div className="text-4xl font-black text-green-600 mb-2">
+          <div className="mb-8 grid grid-cols-2 gap-4">
+            <div className="rounded-[10px] border border-[#3f7267]/30 bg-[#f0f7f5] p-6 text-center transition-transform hover:scale-105">
+              <div className="mb-2 text-4xl font-black text-[#3f7267]">
                 {results.correctAnswers}
               </div>
-              <div className="text-sm font-semibold text-green-700 uppercase tracking-wide">
+              <div className="text-sm font-semibold uppercase tracking-wide text-[#3f7267]">
                 Correct
               </div>
             </div>
-            <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-6 text-center border-2 border-red-200 shadow-md transform hover:scale-105 transition-transform">
-              <div className="text-4xl font-black text-red-600 mb-2">
+            <div className="rounded-[10px] border border-[#95586b]/30 bg-[#faf0f3] p-6 text-center transition-transform hover:scale-105">
+              <div className="mb-2 text-4xl font-black text-[#95586b]">
                 {results.incorrectAnswers}
               </div>
-              <div className="text-sm font-semibold text-red-700 uppercase tracking-wide">
+              <div className="text-sm font-semibold uppercase tracking-wide text-[#95586b]">
                 Incorrect
               </div>
             </div>
           </div>
 
           {/* Temps passé */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 mb-8 text-center border border-gray-200 shadow-md">
-            <div className="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+          <div className="mb-8 rounded-[10px] border border-[#eae2d2] bg-[#f8f2e7] p-6 text-center">
+            <div className="mb-2 text-sm font-semibold uppercase tracking-wide text-[#6b7180]">
               ⏱️ Time Spent
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="font-display text-3xl font-semibold text-[#2c3c5e]">
               {minutes > 0 && `${minutes} min `}
               {seconds} sec
             </div>
           </div>
 
           {/* Résultat (réussi/échoué) */}
-          <div className={`rounded-xl p-5 mb-8 text-center font-bold text-lg border-2 ${badgeClass} shadow-md animate-fade-in`}>
+          <div className={`mb-8 animate-fade-in rounded-[10px] border-2 p-5 text-center text-lg font-bold ${badgeClass}`}>
             {passed ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="text-2xl">✅</span>
@@ -183,19 +177,19 @@ export default function Results({
           {/* Quiz similaires */}
           {similarQuizs.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Similar Quizzes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <h3 className="font-display mb-4 text-xl font-semibold text-[#2c3c5e]">Similar Quizzes</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {similarQuizs.map((quiz) => (
                   <Link
                     key={quiz.id}
                     href={`/quiz/${quiz.slug}`}
                     onClick={() => trackSimilarQuizClick(quiz.id, quiz.title.rendered.replace(/<[^>]*>/g, ''))}
-                    className="card-modern p-4 hover:scale-105 transition-transform"
+                    className="card-modern p-4 transition-transform hover:scale-105"
                   >
-                    <h4 className="font-bold text-gray-900 mb-2 line-clamp-2">
+                    <h4 className="mb-2 line-clamp-2 font-semibold text-[#2c3c5e]">
                       {quiz.title.rendered.replace(/<[^>]*>/g, '')}
                     </h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-[#6b7180]">
                       {quiz.acf?.nombre_questions || 0} questions
                     </p>
                   </Link>
@@ -209,9 +203,9 @@ export default function Results({
             <div className="mb-8">
               <Link
                 href={`/quiz/${quizSlug}/correction`}
-                className="w-full px-6 py-4 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all transform hover:scale-105 shadow-md flex items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-[#2c3c5e] px-6 py-4 font-semibold text-white transition hover:bg-[#1d2a45]"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 View Full Correction
@@ -221,7 +215,7 @@ export default function Results({
 
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <Link
               href={`/quiz/${quizSlug}?reset=true`}
               onClick={(e) => {
@@ -230,21 +224,21 @@ export default function Results({
                   localStorage.removeItem(`quiz-progress-${quizId}`);
                 }
               }}
-              className="flex-1 btn-primary text-center py-4 text-lg"
+              className="btn-primary flex-1 py-4 text-center text-lg"
             >
               🔄 Retake Quiz
             </Link>
             {user && (
               <Link
                 href="/dashboard"
-                className="flex-1 btn-secondary text-center py-4 text-lg"
+                className="btn-secondary flex-1 py-4 text-center text-lg"
               >
                 📊 View Dashboard
               </Link>
             )}
             <Link
               href="/quiz"
-              className="flex-1 btn-secondary text-center py-4 text-lg"
+              className="btn-secondary flex-1 py-4 text-center text-lg"
             >
               📚 View Other Quizzes
             </Link>

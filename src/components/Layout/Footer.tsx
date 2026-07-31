@@ -11,39 +11,47 @@ const navigation = [
 const information = [
   ['/terms-of-service', 'Terms of Service'],
   ['/privacy-policy', 'Privacy Policy'],
-  ['/contact-us', 'Support'],
+  ['/privacy-policy', 'Cookie Policy'],
+  ['/about-us', 'Editorial Policy'],
+  ['/about-us', 'Our Methodology'],
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1d2a45] px-6 pb-7 pt-14 text-white/60">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-[1.6fr_1fr_1fr]">
+    <footer className="bg-[#1d2a45] px-6 pb-[26px] pt-[60px] text-white/60">
+      <div className="mx-auto max-w-[1160px]">
+        <div className="grid gap-10 border-b border-white/[0.12] pb-9 md:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <Link href="/" className="font-display flex items-center gap-2.5 text-xl font-semibold text-white">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[linear-gradient(135deg,#3f7267,#2c3c5e)] font-sans text-[11px] font-bold">SP</span>
-              {SITE_NAME}
-            </Link>
-            <p className="mt-4 max-w-sm text-sm leading-6">
-              Free, structured math practice for major standardized exams, with focused questions designed to build skill and confidence.
+            <div className="font-display text-[1.15rem] font-semibold text-white">{SITE_NAME}</div>
+            <p className="footer-desc mt-3 max-w-[280px] text-[0.88rem] leading-relaxed">
+              Structured license and certification exam preparation, with rigorous, board-mapped
+              practice questions to help you pass.
             </p>
           </div>
           <div>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-white">Navigation</h3>
-            <div className="space-y-2.5 text-sm">
-              {navigation.map(([href, label]) => <Link key={href} href={href} className="block transition hover:text-white">{label}</Link>)}
+            <h5 className="mb-3.5 text-[0.85rem] font-bold tracking-[0.02em] text-white">Navigation</h5>
+            <div className="space-y-2.5 text-[0.88rem]">
+              {navigation.map(([href, label]) => (
+                <Link key={`${href}-${label}`} href={href} className="block transition hover:text-white">
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
           <div>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-white">Information</h3>
-            <div className="space-y-2.5 text-sm">
-              {information.map(([href, label]) => <Link key={href} href={href} className="block transition hover:text-white">{label}</Link>)}
+            <h5 className="mb-3.5 text-[0.85rem] font-bold tracking-[0.02em] text-white">Information</h5>
+            <div className="space-y-2.5 text-[0.88rem]">
+              {information.map(([href, label]) => (
+                <Link key={label} href={href} className="block transition hover:text-white">
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 pt-[22px] text-[0.82rem] sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
-          <span>Made for every score.</span>
+          <span>Made for every license.</span>
         </div>
       </div>
     </footer>

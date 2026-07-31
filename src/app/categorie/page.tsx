@@ -20,39 +20,37 @@ export default async function CategoriesListPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-[#fdfbf7]">
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-12 animate-fade-in">
-          <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-blue-100 border border-primary-200 mb-4">
-            <span className="text-sm font-semibold text-primary-700">Categories</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-4 gradient-text">
+        <div className="mb-12">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#3f7267]">Categories</p>
+          <h1 className="font-display mb-4 text-4xl font-semibold text-[#2c3c5e] md:text-5xl">
             Quiz Categories
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl">
+          <p className="max-w-3xl text-lg text-[#6b7180]">
             Choose a category to explore quizzes
           </p>
         </div>
 
         {categories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {categories.map((category) => (
               <Link
                 key={category.slug}
                 href={`/categorie/${category.slug}`}
-                className="block p-6 rounded-2xl border border-gray-200 bg-white hover:border-primary-300 hover:shadow-lg transition-all"
+                className="block rounded-[10px] border border-[#eae2d2] bg-white p-6 transition hover:border-[#3f7267]/40 hover:shadow-[0_2px_10px_rgba(44,60,94,0.06)]"
               >
-                <h2 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h2>
+                <h2 className="font-display mb-2 text-xl font-semibold text-[#2c3c5e]">{category.name}</h2>
                 {category.description && (
-                  <p className="text-gray-600 text-sm line-clamp-2">{category.description}</p>
+                  <p className="line-clamp-2 text-sm text-[#6b7180]">{category.description}</p>
                 )}
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 rounded-2xl border border-gray-200 bg-gray-50">
-            <p className="text-gray-600">No categories available at the moment.</p>
+          <div className="rounded-[10px] border border-[#eae2d2] bg-[#f8f2e7] py-16 text-center">
+            <p className="text-[#6b7180]">No categories available at the moment.</p>
           </div>
         )}
       </div>

@@ -6,27 +6,30 @@ interface LoadingSpinnerProps {
 }
 
 export default function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-12 h-12',
-    lg: 'w-20 h-20',
+  const sizeMap = {
+    sm: { box: 'h-10 w-10', text: 'text-sm', ring: 'border-2' },
+    md: { box: 'h-14 w-14', text: 'text-lg', ring: 'border-[3px]' },
+    lg: { box: 'h-20 w-20', text: 'text-2xl', ring: 'border-4' },
   };
+
+  const s = sizeMap[size];
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <div className={`${sizeClasses[size]} relative`}>
-        <div className="absolute inset-0 bg-gray-900 rounded-2xl animate-pulse"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-white font-bold text-xl">M</span>
+      <div className={`relative ${s.box}`}>
+        {/* Soft glow */}
+        <div className="absolute -inset-3 rounded-2xl bg-[radial-gradient(circle,rgba(63,114,103,0.18),transparent_70%)]" />
+
+        {/* Spinning ring */}
+        <div
+          className={`absolute inset-0 rounded-xl ${s.ring} border-[#eae2d2] border-t-[#3f7267] border-r-[#2c3c5e] animate-spin`}
+        />
+
+        {/* Brand badge */}
+        <div className="absolute inset-[18%] flex items-center justify-center rounded-lg bg-[linear-gradient(135deg,#3f7267,#2c3c5e)] shadow-sm">
+          <span className={`font-bold tracking-tight text-white ${s.text}`}>SP</span>
         </div>
-        <div className="absolute inset-0 border-4 border-gray-900 border-t-transparent rounded-2xl animate-spin"></div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-

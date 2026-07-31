@@ -8,21 +8,21 @@ interface SidebarProps {
 
 export default function Sidebar({ categories = [] }: SidebarProps) {
   return (
-    <aside className="w-full md:w-64 flex-shrink-0">
+    <aside className="w-full flex-shrink-0 md:w-64">
       <div className="space-y-6">
         {/* Categories */}
         {categories.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Categories</h3>
+          <div className="rounded-[10px] border border-[#eae2d2] bg-white p-6 shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
+            <h3 className="font-display mb-4 text-lg font-semibold text-[#2c3c5e]">Categories</h3>
             <ul className="space-y-2">
               {categories.map((category) => (
                 <li key={category.id}>
                   <Link
                     href={`/categorie/${category.slug}`}
-                    className="flex items-center justify-between text-gray-700 hover:text-primary-600 transition-colors py-2"
+                    className="flex items-center justify-between py-2 text-[#6b7180] transition-colors hover:text-[#2c3c5e]"
                   >
                     <span>{category.name}</span>
-                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    <span className="rounded-md bg-[#f8f2e7] px-2 py-1 text-sm text-[#6b7180]">
                       {category.count}
                     </span>
                   </Link>
@@ -35,4 +35,3 @@ export default function Sidebar({ categories = [] }: SidebarProps) {
     </aside>
   );
 }
-

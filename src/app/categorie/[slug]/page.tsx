@@ -4,7 +4,6 @@ import { getAllCategories, getQuizByModule } from '@/lib/quiz-service';
 import type { Category } from '@/lib/types';
 import QuizCard from '@/components/Quiz/QuizCard';
 import Navigation from '@/components/Layout/Navigation';
-import { SITE_NAME } from '@/lib/constants';
 
 export const revalidate = 3600;
 
@@ -65,34 +64,31 @@ export default async function CategoryPage({ params }: PageProps) {
   const quizs = await getQuizByModule(category.slug);
 
   return (
-    <div>
+    <div className="min-h-screen bg-[#fdfbf7]">
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-12 animate-fade-in">
-          <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-blue-100 border border-primary-200 mb-4">
-            <span className="text-sm font-semibold text-primary-700">Category</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-4 gradient-text">
+        <div className="mb-12">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#3f7267]">Category</p>
+          <h1 className="font-display mb-4 text-4xl font-semibold text-[#2c3c5e] md:text-5xl">
             {category.name} Quizzes
           </h1>
           {category.description && (
-            <p className="text-xl text-gray-600 mb-4 leading-relaxed max-w-3xl">{category.description}</p>
+            <p className="mb-4 max-w-3xl text-lg leading-relaxed text-[#6b7180]">{category.description}</p>
           )}
-          <p className="text-lg text-gray-500">
+          <p className="text-base text-[#6b7180]">
             {quizs.length} quiz{quizs.length !== 1 ? 'zes' : ''} available
           </p>
         </div>
 
         {quizs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {quizs.map((quiz, index) => (
               <QuizCard key={quiz.id} quiz={quiz} index={index} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 card-modern">
-            <div className="text-6xl mb-4">📚</div>
-            <p className="text-gray-600 text-lg">
+          <div className="rounded-[10px] border border-[#eae2d2] bg-white py-16 text-center">
+            <p className="text-lg text-[#6b7180]">
               No quizzes available in this category at the moment.
             </p>
           </div>
@@ -101,4 +97,3 @@ export default async function CategoryPage({ params }: PageProps) {
     </div>
   );
 }
-

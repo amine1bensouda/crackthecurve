@@ -45,13 +45,13 @@ export default async function QuizCorrectionPage({ params }: PageProps) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-white via-gray-50 to-white min-h-screen">
-      <div className="container mx-auto px-4 py-8 md:py-12">
+    <div className="min-h-screen bg-[#fdfbf7]">
+      <div className="mx-auto max-w-[1160px] px-6 py-8 md:py-12">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="font-display mb-2 text-3xl font-semibold text-[#2c3c5e] md:text-4xl">
             Quiz Correction
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-[#6b7180]">
             {stripHtml(quiz.title.rendered)}
           </p>
         </div>

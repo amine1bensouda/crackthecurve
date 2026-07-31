@@ -34,11 +34,11 @@ export default function CookieBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4 sm:pb-6">
-      <div className="max-w-4xl w-full bg-gray-900 text-gray-100 rounded-2xl shadow-2xl border border-gray-700 px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="text-sm sm:text-base leading-relaxed">
+      <div className="flex w-full max-w-4xl flex-col gap-3 rounded-[10px] border border-[#1d2a45] bg-[#2c3c5e] px-4 py-3 text-white shadow-[0_8px_30px_rgba(29,42,69,0.35)] sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
+        <div className="text-sm leading-relaxed sm:text-base">
           <p>
             This website uses cookies to improve your experience and analyze traffic. By continuing to browse, you agree to our use of cookies. Read our{" "}
-            <Link href="/privacy-policy" className="underline text-indigo-300 hover:text-indigo-200">
+            <Link href="/privacy-policy" className="font-medium text-[#c79a55] underline hover:text-[#e0b56e]">
               Privacy Policy
             </Link>
             .
@@ -48,14 +48,14 @@ export default function CookieBanner() {
           <button
             type="button"
             onClick={acceptCookies}
-            className="px-4 py-2 rounded-full bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold shadow-lg transition-colors"
+            className="rounded-md bg-[#3f7267] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#355f56]"
           >
             Accept
           </button>
           <button
             type="button"
             onClick={declineCookies}
-            className="px-4 py-2 rounded-full border border-gray-500 text-gray-100 text-sm font-semibold hover:bg-gray-800 transition-colors"
+            className="rounded-md border border-white/30 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1d2a45]"
           >
             Decline
           </button>
@@ -64,4 +64,3 @@ export default function CookieBanner() {
     </div>
   );
 }
-

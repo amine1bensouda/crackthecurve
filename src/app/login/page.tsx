@@ -30,28 +30,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <span className="text-white font-bold text-2xl">M</span>
-            </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#fdfbf7] px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <Link href="/" className="mb-6 inline-flex items-center gap-2.5">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[linear-gradient(135deg,#3f7267,#2c3c5e)] text-lg font-bold text-white">
+              SP
+            </span>
+            <span className="font-display text-xl font-bold text-[#2c3c5e]">{SITE_NAME}</span>
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to continue to {SITE_NAME}</p>
+          <h1 className="font-display mt-6 text-3xl font-semibold text-[#2c3c5e]">Welcome Back</h1>
+          <p className="mt-2 text-[#6b7180]">Sign in to continue to {SITE_NAME}</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="rounded-[10px] border border-[#eae2d2] bg-white p-8 shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#2c3c5e]">
                 Email Address
               </label>
               <input
@@ -60,13 +61,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-gray-900 focus:ring-2 focus:ring-gray-900 outline-none transition-all"
+                className="w-full rounded-md border border-[#eae2d2] px-4 py-3 outline-none transition focus:border-[#2c3c5e] focus:ring-1 focus:ring-[#2c3c5e]"
                 placeholder="your.email@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="mb-2 block text-sm font-semibold text-[#2c3c5e]">
                 Password
               </label>
               <input
@@ -75,7 +76,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-gray-900 focus:ring-2 focus:ring-gray-900 outline-none transition-all"
+                className="w-full rounded-md border border-[#eae2d2] px-4 py-3 outline-none transition focus:border-[#2c3c5e] focus:ring-1 focus:ring-[#2c3c5e]"
                 placeholder="Enter your password"
               />
             </div>
@@ -83,24 +84,22 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-[#2c3c5e] py-3.5 font-semibold text-white transition hover:bg-[#1d2a45] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-gray-900 font-semibold hover:underline">
-                Sign up
-              </Link>
-            </p>
+          <div className="mt-6 text-center text-[#6b7180]">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="font-semibold text-[#2c3c5e] hover:underline">
+              Sign up
+            </Link>
           </div>
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 text-sm">
+          <Link href="/" className="text-sm text-[#6b7180] hover:text-[#2c3c5e]">
             ← Back to home
           </Link>
         </div>
@@ -108,5 +107,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-

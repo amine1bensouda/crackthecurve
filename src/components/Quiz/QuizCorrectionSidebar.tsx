@@ -25,17 +25,17 @@ export default function QuizCorrectionSidebar({
   };
 
   return (
-    <aside className="hidden lg:flex flex-col sticky top-24 self-start w-80 bg-white shadow-2xl z-40 border-r border-gray-200 h-[calc(100vh-12rem)]">
-      <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0 bg-white">
+    <aside className="sticky top-24 z-40 hidden h-[calc(100vh-12rem)] w-80 flex-shrink-0 flex-col self-start border-r border-[#eae2d2] bg-white shadow-[0_2px_10px_rgba(44,60,94,0.08)] lg:flex">
+      <div className="flex-shrink-0 border-b border-[#eae2d2] bg-white px-6 py-4">
         <div className="mb-3">
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="font-display text-lg font-semibold text-[#2c3c5e]">
             Quiz Questions
           </h2>
         </div>
         
         {/* Statistiques */}
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+        <div className="flex items-center gap-2 text-xs text-[#6b7180]">
+          <div className="h-2 w-2 rounded-full bg-[#3f7267]"></div>
           <span>
             {questions.length} questions
           </span>
@@ -43,7 +43,7 @@ export default function QuizCorrectionSidebar({
       </div>
 
       {/* Liste des questions */}
-      <div className="px-3 pt-3 pb-4 space-y-2 overflow-y-auto flex-1 min-h-0">
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 pb-4 pt-3">
         {questions.map((question, index) => {
           const isCurrent = index === currentQuestionIndex;
           const questionText = getQuestionText(question, index);
@@ -62,22 +62,22 @@ export default function QuizCorrectionSidebar({
             <div
               key={index}
               className={`
-                w-full rounded-lg border-2 transition-all duration-200
+                w-full rounded-[10px] border-2 transition-all duration-200
                 ${
                   isCurrent
-                    ? 'border-indigo-500 bg-indigo-50 shadow-sm'
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                    ? 'border-[#2c3c5e] bg-[#f8f2e7] shadow-sm'
+                    : 'border-[#eae2d2] bg-white hover:border-[#2c3c5e]/30 hover:shadow-sm'
                 }
               `}
             >
               <button
                 onClick={() => onQuestionSelect(index)}
                 className={`
-                  w-full text-left p-3 rounded-lg transition-all duration-200 relative
+                  w-full text-left p-3 rounded-[10px] transition-all duration-200 relative
                   ${
                     isCurrent
-                      ? 'hover:bg-indigo-100'
-                      : 'hover:bg-gray-50'
+                      ? 'hover:bg-[#f3ebe0]'
+                      : 'hover:bg-[#f8f2e7]'
                   }
                 `}
               >
@@ -88,8 +88,8 @@ export default function QuizCorrectionSidebar({
                       flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs
                       ${
                         isCurrent
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-gray-200 text-gray-600'
+                          ? 'bg-[#2c3c5e] text-white'
+                          : 'bg-[#f8f2e7] text-[#6b7180]'
                       }
                     `}
                   >
@@ -97,14 +97,14 @@ export default function QuizCorrectionSidebar({
                   </div>
 
                   {/* Texte de la question */}
-                  <div className="flex-1 min-w-0 overflow-hidden">
+                  <div className="min-w-0 flex-1 overflow-hidden">
                     <div
                       className={`
                         text-xs font-medium leading-snug
                         ${
                           isCurrent
-                            ? 'text-indigo-900'
-                            : 'text-gray-700'
+                            ? 'text-[#2c3c5e]'
+                            : 'text-[#6b7180]'
                         }
                       `}
                       style={{
@@ -117,17 +117,17 @@ export default function QuizCorrectionSidebar({
                       <MathRenderer text={questionText} className="text-xs" />
                     </div>
                     {!hasCorrectAnswer && (
-                      <div className="text-xs text-yellow-600 mt-1">⚠️ No answer</div>
+                      <div className="mt-1 text-xs text-[#c79a55]">⚠️ No answer</div>
                     )}
                   </div>
 
                   {/* Indicateur de statut */}
-                  <div className="flex-shrink-0 flex items-center gap-1.5">
+                  <div className="flex flex-shrink-0 items-center gap-1.5">
                     {isCurrent && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#2c3c5e]"></div>
                     )}
                     {hasCorrectAnswer && (
-                      <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-4 w-4 flex-shrink-0 text-[#3f7267]" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -140,8 +140,8 @@ export default function QuizCorrectionSidebar({
       </div>
 
       {/* Note en bas */}
-      <div className="px-3 py-3 border-t border-gray-200 bg-gray-50">
-        <p className="text-xs text-gray-600 text-center">
+      <div className="border-t border-[#eae2d2] bg-[#f8f2e7] px-3 py-3">
+        <p className="text-center text-xs text-[#6b7180]">
           💡 Click to view correction
         </p>
       </div>

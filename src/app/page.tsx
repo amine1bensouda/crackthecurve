@@ -7,7 +7,7 @@ import { SITE_DESCRIPTION } from '@/lib/constants';
 import { formatDuration, formatNumber, stripHtml } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Free Math Practice for Standardized Exams',
+  title: 'Professional License & Certification Exam Prep',
   description: SITE_DESCRIPTION,
 };
 
@@ -18,33 +18,33 @@ const accents = ['#3f7267', '#95586b', '#c79a55'];
 
 const benefits = [
   {
-    title: 'Practice Real Exam Questions',
-    text: 'Solve ACT, SAT, AP, GRE, and GMAT-style math problems written to match real test difficulty and format.',
+    title: 'Practice Real Board Questions',
+    text: "Solve PE, CPA, NCLEX, Bar, and PMP-style questions written to match each board's real exam difficulty and format.",
   },
   {
     title: 'Understand What Matters',
-    text: 'Each problem focuses on high-frequency exam concepts, so every study session moves you closer to your goal.',
+    text: 'Each question targets a high-frequency exam topic pulled from the official blueprint, not random subject theory.',
   },
   {
-    title: 'Train Like Test Day',
-    text: 'Timed practice builds the speed, accuracy, and confidence you need under real exam conditions.',
+    title: 'Train Like Exam Day',
+    text: 'Timed practice sessions build the speed, accuracy, and confidence you need under real testing-center conditions.',
   },
 ];
 
 const reasons = [
-  ['Exam-Accurate Practice', 'Questions designed around the structure, language, and difficulty of major standardized tests.'],
-  ['Focused Learning', 'Spend your time on the concepts that are most likely to earn points on exam day.'],
-  ['Clear Explanations', 'Learn from every attempt with straightforward solutions that make difficult ideas easier.'],
-  ['Every Exam in One Place', 'Prepare for multiple exams and track your practice from one simple account.'],
+  ['Board-Accurate Practice', 'Questions written to match the real difficulty and format of each licensing exam.'],
+  ['Difficulty That Matches the Exam', 'Each question focuses on high-frequency, high-weight exam topics.'],
+  ['Field-Focused Learning', 'Each bank is written by practitioners who hold that specific license.'],
+  ['Every License in One Place', 'No switching platforms between fields. Practice under real exam conditions, in one account.'],
 ];
 
 const personas = [
-  ['Just Getting Started', 'Build a strong foundation with a clear path through the essential exam topics.'],
-  ['At a Plateau', 'Find the skills costing you points and focus your practice where it matters most.'],
-  ['Short on Time', 'Keep progressing with focused quiz sessions that fit around a busy schedule.'],
-  ['Not a Confident Test Taker', 'Get comfortable with exam-style questions through steady, targeted practice.'],
-  ['Retaking an Exam', 'Turn your last result into a focused plan and close the gaps before your next attempt.'],
-  ['Stressed by the Clock', 'Use timed quizzes to improve pacing and stay composed on test day.'],
+  ['Just Getting Started', 'Follow a clear path through the exam blueprint with tools built to help you learn faster.'],
+  ['At a Plateau', 'Find the domains costing you points with analytics that show exactly what to focus on.'],
+  ['Busy', 'Stay on track around a full-time job with study tools that adapt to your schedule.'],
+  ['Not a Confident Test Taker', 'Learn to work through tricky, board-style questions with targeted practice and proven strategy.'],
+  ['Retaking the Exam', 'Pinpoint and correct the exact problem areas from your last attempt with focused practice.'],
+  ['Stressed by the Clock', 'Practice with the timer feature to build pacing and stay calm on test day.'],
 ];
 
 export default async function HomePage() {
@@ -58,155 +58,233 @@ export default async function HomePage() {
 
   return (
     <div className="bg-[#fdfbf7] text-[#2b3244]">
-      <section className="relative overflow-hidden border-b border-[#eae2d2] px-6 py-20 sm:py-24 lg:py-28">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_600px_350px_at_15%_0%,rgba(63,114,103,.11),transparent_65%),radial-gradient(ellipse_600px_350px_at_85%_5%,rgba(149,88,107,.10),transparent_65%)]" />
-        <div className="relative mx-auto max-w-5xl text-center">
-          <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-[#3f7267]">Free exam preparation</p>
-          <h1 className="font-display mx-auto max-w-4xl text-4xl font-semibold leading-[1.08] text-[#2c3c5e] sm:text-5xl lg:text-[3.5rem]">
-            Practice Math for Every Major{' '}
-            <span className="italic text-[#3f7267]">Standardized Exam</span>
+      {/* Hero */}
+      <section
+        className="px-6 pb-16 pt-[88px] text-center"
+        style={{
+          background:
+            'radial-gradient(ellipse 700px 380px at 18% 0%, rgba(63,114,103,0.08), transparent 60%), radial-gradient(ellipse 700px 380px at 85% 10%, rgba(149,88,107,0.08), transparent 60%)',
+        }}
+      >
+        <div className="mx-auto max-w-[1160px]">
+          <h1 className="font-display mx-auto max-w-[820px] text-[clamp(2.3rem,4.5vw,3.5rem)] font-semibold leading-[1.15] text-[#2c3c5e]">
+            Practice Problems for Every Professional{' '}
+            <span className="italic text-[#3f7267]">License &amp; Certification</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-[#6b7180]">
-            Prepare for the ACT, SAT, AP, GRE, GMAT, and more — one focused platform,
-            thousands of exam-style questions, completely free.
+          <p className="mx-auto mt-[22px] max-w-[680px] text-[1.15rem] text-[#6b7180]">
+            Practice for licenses and certifications across engineering, nursing, accounting,
+            construction, and more — one platform, every industry.
           </p>
-          <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-[#6b7180]">
-            Sona Prep helps students build stronger math skills with focused practice,
-            clear explanations, and realistic quizzes made for test day.
+          <p className="mx-auto mt-3.5 max-w-[700px] text-base text-[#6b7180]">
+            SonaPrep is a comprehensive online platform offering high-quality practice questions for
+            professional licensing and certification exams in the United States. Improve your skills
+            and prepare for any major credentialing exam across the industries you work in.
           </p>
-          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/quiz" className="rounded-md bg-[#2c3c5e] px-7 py-3.5 font-semibold text-white transition hover:bg-[#1d2a45]">
+          <div className="mt-[34px] flex flex-col items-center justify-center gap-3.5 sm:flex-row">
+            <Link
+              href="#courses"
+              className="inline-block rounded-md bg-[#2c3c5e] px-[26px] py-[13px] text-[0.95rem] font-semibold text-white transition hover:bg-[#1d2a45]"
+            >
               Start Practicing
             </Link>
-            <Link href="/about-us" className="rounded-md border border-[#d9cfbd] px-7 py-3.5 font-semibold text-[#2c3c5e] transition hover:border-[#2c3c5e]">
-              About Sona Prep
+            <Link
+              href="/about-us"
+              className="inline-block rounded-md border border-[#eae2d2] bg-transparent px-[26px] py-[13px] text-[0.95rem] font-semibold text-[#2c3c5e] transition hover:border-[#2c3c5e]"
+            >
+              About SonaPrep
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-20" id="courses">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-[#95586b]">Choose your test</p>
-          <h2 className="font-display mt-3 text-center text-3xl font-semibold text-[#2c3c5e] sm:text-4xl">Explore Our Exams</h2>
+      {/* Courses / Licenses */}
+      <section id="courses" className="px-6 py-[76px]">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display mb-[46px] text-center text-[2rem] font-semibold text-[#2c3c5e]">
+            Explore Our Licenses
+          </h2>
           {courses.length ? (
-            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-[22px] sm:grid-cols-2 lg:grid-cols-3">
               {courses.map((course, index) => {
-                const totalQuizzes = course.modules?.reduce((sum, module) => sum + (module._count?.quizzes ?? 0), 0) ?? 0;
+                const totalQuizzes =
+                  course.modules?.reduce((sum, module) => sum + (module._count?.quizzes ?? 0), 0) ?? 0;
                 const moduleCount = course._count?.modules ?? course.modules?.length ?? 0;
                 const accent = accents[index % accents.length];
                 return (
-                  <article key={course.id} className="rounded-[10px] border border-[#eae2d2] border-t-[3px] bg-white p-7 shadow-[0_3px_15px_rgba(44,60,94,.05)]" style={{ borderTopColor: accent }}>
-                    <h3 className="font-display text-xl font-semibold text-[#2c3c5e]">{course.title}</h3>
-                    <div className="font-display mt-4 text-4xl font-bold" style={{ color: accent }}>{formatNumber(moduleCount)}</div>
-                    <p className="mt-1 text-sm text-[#6b7180]">
-                      {moduleCount === 1 ? 'Module' : 'Modules'} · {formatNumber(totalQuizzes)} {totalQuizzes === 1 ? 'quiz' : 'quizzes'}
+                  <article
+                    key={course.id}
+                    className="rounded-[10px] border border-[#eae2d2] border-t-[3px] bg-white p-[26px] shadow-[0_2px_10px_rgba(44,60,94,0.04)]"
+                    style={{ borderTopColor: accent }}
+                  >
+                    <h3 className="font-display text-[1.12rem] font-semibold text-[#2c3c5e]">
+                      {course.title}
+                    </h3>
+                    <div
+                      className="font-display mt-3.5 text-[2.2rem] font-bold leading-none"
+                      style={{ color: accent }}
+                    >
+                      {formatNumber(moduleCount)}
+                    </div>
+                    <p className="mt-1 mb-[18px] text-[0.88rem] text-[#6b7180]">
+                      {moduleCount === 1 ? 'Module' : 'Modules'} · {formatNumber(totalQuizzes)}{' '}
+                      {totalQuizzes === 1 ? 'quiz' : 'quizzes'}
                     </p>
-                    <Link href={course.slug ? `/quiz/course/${course.slug}` : '/quiz'} className="mt-6 inline-block border-b-2 pb-0.5 text-sm font-semibold text-[#2c3c5e]" style={{ borderColor: accent }}>
-                      Practice this exam →
+                    <Link
+                      href={course.slug ? `/quiz/course/${course.slug}` : '/quiz'}
+                      className="text-[0.9rem] font-semibold text-[#2c3c5e]"
+                      style={{ borderBottom: `2px solid ${accent}`, paddingBottom: 2 }}
+                    >
+                      Practice {course.title.includes('QBank') ? course.title : `${course.title} QBank`} →
                     </Link>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <div className="mt-10 rounded-lg border border-[#eae2d2] bg-white p-10 text-center text-[#6b7180]">Our exam collections are being prepared.</div>
+            <div className="rounded-[10px] border border-[#eae2d2] bg-white p-10 text-center text-[#6b7180]">
+              Our license collections are being prepared.
+            </div>
           )}
         </div>
       </section>
 
-      <section className="border-y border-[#eae2d2] bg-[#f8f2e7] px-6 py-14">
-        <div className="mx-auto grid max-w-4xl gap-10 text-center sm:grid-cols-3">
-          {[
-            [stats.total_quiz, 'Available Quizzes'],
-            [stats.total_questions, 'Practice Questions'],
-            [stats.total_categories, 'Exam Categories'],
-          ].map(([value, label]) => (
-            <div key={label}>
-              <div className="font-display text-4xl font-bold text-[#2c3c5e]">{formatNumber(Number(value))}</div>
-              <div className="mt-1 text-sm text-[#6b7180]">{label}</div>
+      {/* Stats */}
+      <div className="flex flex-wrap items-center justify-center gap-10 border-y border-[#eae2d2] bg-[#f8f2e7] px-6 py-14 text-center sm:gap-20">
+        {[
+          [stats.total_quiz, 'Available Quizzes'],
+          [stats.total_questions, 'Practice Questions'],
+          [stats.total_categories || courses.length, 'Licensing Fields'],
+        ].map(([value, label]) => (
+          <div key={String(label)}>
+            <div className="font-display text-[2.5rem] font-bold text-[#2c3c5e]">
+              {formatNumber(Number(value))}
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="mt-1 text-[0.9rem] text-[#6b7180]">{label}</div>
+          </div>
+        ))}
+      </div>
 
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-center text-3xl font-semibold text-[#2c3c5e] sm:text-4xl">How Sona Prep Helps You Score Higher</h2>
-          <div className="mt-12 grid gap-9 md:grid-cols-3">
-            {benefits.map((item, index) => (
-              <article key={item.title} className="border-t-2 pt-6" style={{ borderColor: accents[index] }}>
-                <span className="font-display text-sm font-bold" style={{ color: accents[index] }}>0{index + 1}</span>
-                <h3 className="font-display mt-3 text-xl font-semibold text-[#2c3c5e]">{item.title}</h3>
-                <p className="mt-3 text-[15px] leading-7 text-[#6b7180]">{item.text}</p>
+      {/* How it helps */}
+      <section className="px-6 py-[76px]">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display mb-[46px] text-center text-[2rem] font-semibold text-[#2c3c5e]">
+            How SonaPrep Helps You Get Licensed
+          </h2>
+          <div className="grid gap-[30px] md:grid-cols-3">
+            {benefits.map((item) => (
+              <article key={item.title}>
+                <h3 className="font-display text-[1.15rem] font-semibold text-[#2c3c5e]">{item.title}</h3>
+                <p className="mt-2.5 text-[0.95rem] leading-relaxed text-[#6b7180]">{item.text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[#f8f2e7] px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-center text-3xl font-semibold text-[#2c3c5e] sm:text-4xl">Why Students Use Sona Prep</h2>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Why */}
+      <section className="bg-[#f8f2e7] px-6 py-[76px]">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display mb-[46px] text-center text-[2rem] font-semibold text-[#2c3c5e]">
+            Why Professionals Use SonaPrep
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {reasons.map(([title, text]) => (
-              <article key={title} className="rounded-[10px] border border-[#eae2d2] bg-white p-6">
-                <h3 className="font-display text-lg font-semibold text-[#2c3c5e]">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#6b7180]">{text}</p>
+              <article
+                key={title}
+                className="rounded-[10px] border border-[#eae2d2] bg-white p-6"
+              >
+                <h3 className="font-display text-[1.02rem] font-semibold text-[#2c3c5e]">{title}</h3>
+                <p className="mt-2 text-[0.88rem] leading-relaxed text-[#6b7180]">{text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-center text-3xl font-semibold text-[#2c3c5e] sm:text-4xl">Sona Prep Is Built for You</h2>
-          <div className="mt-12 grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+      {/* Personas */}
+      <section className="px-6 py-[76px]">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display mb-[46px] text-center text-[2rem] font-semibold text-[#2c3c5e]">
+            Choose SonaPrep If You Are:
+          </h2>
+          <div className="grid gap-x-7 gap-y-[26px] sm:grid-cols-2 lg:grid-cols-3">
             {personas.map(([title, text], index) => (
-              <article key={title} className="border-t-[3px] pt-5" style={{ borderColor: accents[index % accents.length] }}>
-                <h3 className="font-display text-lg font-semibold text-[#2c3c5e]">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#6b7180]">{text}</p>
+              <article
+                key={title}
+                className="border-t-[3px] pt-5"
+                style={{ borderColor: accents[index % accents.length] }}
+              >
+                <h3 className="font-display text-[1.05rem] font-semibold text-[#2c3c5e]">{title}</h3>
+                <p className="mt-2 text-[0.9rem] leading-relaxed text-[#6b7180]">{text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-[#eae2d2] px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-center text-3xl font-semibold text-[#2c3c5e] sm:text-4xl">Featured Quizzes</h2>
+      {/* Featured quizzes */}
+      <section className="px-6 py-[76px]">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display mb-[46px] text-center text-[2rem] font-semibold text-[#2c3c5e]">
+            Featured Quizzes
+          </h2>
           {featuredQuizzes.length ? (
-            <div className="mt-12 flex gap-4 overflow-x-auto pb-4">
+            <div className="flex gap-4 overflow-x-auto pb-2.5">
               {featuredQuizzes.map((quiz) => {
                 const duration = quiz.acf?.duree_estimee;
-                const questions = quiz.acf?.nombre_questions;
+                const moduleLabel = quiz.acf?.categorie || 'Practice';
                 return (
-                  <article key={quiz.prismaId ?? quiz.id} className="flex min-h-56 w-[240px] shrink-0 flex-col rounded-[10px] border border-[#eae2d2] bg-white p-5">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#3f7267]">{quiz.acf?.categorie || 'Math practice'}</p>
-                    <h3 className="font-display mt-3 line-clamp-3 text-lg font-semibold leading-6 text-[#2c3c5e]">{stripHtml(quiz.title.rendered)}</h3>
-                    <p className="mt-3 text-xs text-[#6b7180]">
-                      {questions ? `${questions} questions` : 'Practice quiz'}
+                  <article
+                    key={quiz.prismaId ?? quiz.id}
+                    className="w-[220px] shrink-0 rounded-[10px] border border-[#eae2d2] bg-white p-5"
+                  >
+                    <div className="font-display mb-2 line-clamp-2 text-[1.02rem] font-semibold text-[#2c3c5e]">
+                      {stripHtml(quiz.title.rendered)}
+                    </div>
+                    <div className="mb-4 text-[0.82rem] text-[#6b7180]">
+                      {moduleLabel}
                       {duration ? ` · ${formatDuration(duration)}` : ''}
-                    </p>
-                    <Link href={`/quiz/${quiz.slug}`} className="mt-auto block rounded-md bg-[#2c3c5e] px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-[#1d2a45]">Start Quiz</Link>
+                    </div>
+                    <Link
+                      href={`/quiz/${quiz.slug}`}
+                      className="block rounded-md bg-[#2c3c5e] py-[9px] text-center text-[0.85rem] font-semibold text-white transition hover:bg-[#1d2a45]"
+                    >
+                      Start Quiz
+                    </Link>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <p className="mt-10 text-center text-[#6b7180]">New quizzes are coming soon.</p>
+            <p className="text-center text-[#6b7180]">New quizzes are coming soon.</p>
           )}
-          <div className="mt-7 text-center">
-            <Link href="/quiz" className="border-b-2 border-[#3f7267] pb-1 font-semibold text-[#2c3c5e]">View all quizzes →</Link>
+          <div className="mt-[26px] text-center">
+            <Link
+              href="/quiz"
+              className="font-semibold text-[#2c3c5e]"
+              style={{ borderBottom: '2px solid #3f7267', paddingBottom: 2 }}
+            >
+              View all quizzes →
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="bg-[linear-gradient(120deg,#2c3c5e_0%,#3f7267_100%)] px-6 py-20 text-center text-white">
-        <h2 className="font-display text-3xl font-semibold sm:text-4xl">Ready to Reach Your Best Score?</h2>
-        <p className="mx-auto mt-4 max-w-xl leading-7 text-white/80">Build confidence one question at a time with free, focused math practice for your next exam.</p>
-        <Link href="/register" className="mt-8 inline-block rounded-md bg-white px-7 py-3.5 font-semibold text-[#2c3c5e] transition hover:bg-[#f8f2e7]">Get Started Free</Link>
+      {/* CTA */}
+      <section className="bg-[linear-gradient(120deg,#2c3c5e_0%,#3f7267_100%)] px-6 py-[76px] text-center text-white">
+        <div className="mx-auto max-w-[1160px]">
+          <h2 className="font-display text-[2.1rem] font-semibold text-white">Ready to Get Licensed?</h2>
+          <p className="mx-auto mt-3.5 mb-[30px] max-w-[560px] text-white/90">
+            Join thousands of professionals who are preparing for their licensing exams and building
+            confidence with SonaPrep&apos;s comprehensive practice platform.
+          </p>
+          <Link
+            href="/register"
+            className="inline-block rounded-md bg-white px-[26px] py-[13px] text-[0.95rem] font-semibold text-[#2c3c5e] transition hover:bg-[#f8f2e7]"
+          >
+            Get Started Now
+          </Link>
+        </div>
       </section>
     </div>
   );

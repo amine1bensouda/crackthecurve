@@ -10,30 +10,25 @@ export default function Navigation() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    // Utiliser l'API route pour les composants client
     fetch('/api/categories')
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setCategories)
-      .catch(err => {
-        console.error('Erreur chargement catégories:', err);
-        setCategories([]);
-      });
+      .catch(() => setCategories([]));
   }, []);
 
-  const isActive = (path: string) => {
-    return pathname === path || pathname?.startsWith(path);
-  };
+  const isActive = (path: string) => pathname === path || pathname?.startsWith(path);
 
   return (
-    <nav className="bg-gray-100 border-b border-gray-200">
-      <div className="container mx-auto px-4">
+    <nav className="border-b border-[#eae2d2] bg-[#fdfbf7]">
+      <div className="mx-auto max-w-[1160px] px-6">
         <div className="flex items-center gap-6 overflow-x-auto">
           <Link
             href="/quiz"
-            className={`
-              py-4 px-2 font-medium text-sm whitespace-nowrap border-b-2 transition-colors
-              ${isActive('/quiz') ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-700 hover:text-primary-600'}
-            `}
+            className={`whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors ${
+              isActive('/quiz')
+                ? 'border-[#3f7267] text-[#2c3c5e]'
+                : 'border-transparent text-[#6b7180] hover:text-[#2c3c5e]'
+            }`}
           >
             All Quizzes
           </Link>
@@ -42,10 +37,11 @@ export default function Navigation() {
             <Link
               key={category.id}
               href={`/categorie/${category.slug}`}
-              className={`
-                py-4 px-2 font-medium text-sm whitespace-nowrap border-b-2 transition-colors
-                ${isActive(`/categorie/${category.slug}`) ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-700 hover:text-primary-600'}
-              `}
+              className={`whitespace-nowrap border-b-2 py-4 text-sm font-medium transition-colors ${
+                isActive(`/categorie/${category.slug}`)
+                  ? 'border-[#3f7267] text-[#2c3c5e]'
+                  : 'border-transparent text-[#6b7180] hover:text-[#2c3c5e]'
+              }`}
             >
               {category.name} ({category.count})
             </Link>
@@ -55,4 +51,3 @@ export default function Navigation() {
     </nav>
   );
 }
-

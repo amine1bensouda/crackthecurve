@@ -16,11 +16,11 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
 
   if (questions.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 text-center">
-        <p className="text-gray-600 text-lg">No questions available for this quiz.</p>
+      <div className="bg-white rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] p-8 border border-[#eae2d2] text-center">
+        <p className="text-[#6b7180] text-lg">No questions available for this quiz.</p>
         <Link
           href={`/quiz/${quiz.slug}`}
-          className="mt-4 inline-block px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition-colors"
+          className="mt-4 inline-block px-6 py-3 bg-[#2c3c5e] text-white rounded-[10px] hover:bg-[#1d2a45] transition-colors"
         >
           Back to Quiz
         </Link>
@@ -55,25 +55,25 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
 
       {/* Main Content */}
       <div className="flex-1 w-full lg:ml-0">
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 border border-gray-200">
+        <div className="bg-white rounded-[10px] shadow-[0_2px_10px_rgba(44,60,94,0.04)] p-8 md:p-10 border border-[#eae2d2]">
           {/* Question Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 rounded-[10px] bg-[#2c3c5e] flex items-center justify-center shadow-[0_2px_10px_rgba(44,60,94,0.04)]">
                 <span className="text-white font-bold text-lg">{currentQuestionIndex + 1}</span>
               </div>
               <div>
-                <span className="text-base font-semibold text-gray-900 block">
+                <span className="text-base font-semibold text-[#2c3c5e] block">
                   Question {currentQuestionIndex + 1}
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-[#6b7180]">
                   of {questions.length}
                 </span>
               </div>
             </div>
             {currentQuestion.points && (
-              <div className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-300">
-                <span className="text-sm font-bold text-gray-900">
+              <div className="px-4 py-2 rounded-[10px] bg-[#f8f2e7] border border-[#eae2d2]">
+                <span className="text-sm font-bold text-[#2c3c5e]">
                   {currentQuestion.points} point{currentQuestion.points !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
 
           {/* Question Text */}
           <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
               <MathRenderer text={questionText || ''} />
             </h2>
           </div>
@@ -90,18 +90,18 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
           {/* Correct Answer */}
           {correctAnswer ? (
             <div className="mb-6">
-              <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6">
+              <div className="bg-[#f0f7f5] border-2 border-[#3f7267] rounded-[10px] p-6">
                 <div className="flex items-start gap-3 mb-4">
-                  <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-6 h-6 text-[#3f7267] flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-green-900 mb-2">Correct Answer:</h3>
-                    <p className="text-green-800 font-medium text-lg">
+                    <h3 className="text-lg font-bold text-[#3f7267] mb-2">Correct Answer:</h3>
+                    <p className="text-[#3f7267] font-medium text-lg">
                       <MathRenderer text={correctAnswer.texte || ''} />
                     </p>
                     {correctAnswer.explication && (
-                      <p className="text-sm text-green-700 mt-3 italic">
+                      <p className="text-sm text-[#3f7267] mt-3 italic">
                         <MathRenderer text={correctAnswer.explication} />
                       </p>
                     )}
@@ -111,8 +111,8 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
             </div>
           ) : isTextInput ? (
             <div className="mb-6">
-              <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-6">
-                <p className="text-blue-900 font-medium">
+              <div className="bg-[#f8f2e7] border-2 border-[#2c3c5e] rounded-[10px] p-6">
+                <p className="text-[#2c3c5e] font-medium">
                   {answers.length > 0 && answers[0]?.texte ? (
                     <>
                       <span className="font-bold">Expected Answer:</span>{' '}
@@ -126,8 +126,8 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
             </div>
           ) : (
             <div className="mb-6">
-              <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-6">
-                <p className="text-yellow-900 font-medium">
+              <div className="bg-[#faf6ee] border-2 border-[#c79a55] rounded-[10px] p-6">
+                <p className="text-[#c79a55] font-medium">
                   ⚠️ No correct answer marked for this question.
                 </p>
               </div>
@@ -137,7 +137,7 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
           {/* All Answers (for multiple choice) */}
           {!isTextInput && answers.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">All Answers:</h3>
+              <h3 className="text-lg font-semibold text-[#2c3c5e] mb-4">All Answers:</h3>
               <div className="space-y-3">
                 {answers.map((answer: any, index: number) => {
                   const isCorrect = answer.correcte === true || 
@@ -152,10 +152,10 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                     <div
                       key={index}
                       className={`
-                        p-4 rounded-xl border-2 transition-all
+                        p-4 rounded-[10px] border-2 transition-all
                         ${isCorrect 
-                          ? 'border-green-500 bg-green-50' 
-                          : 'border-gray-200 bg-white'
+                          ? 'border-[#3f7267] bg-[#f0f7f5]' 
+                          : 'border-[#eae2d2] bg-white'
                         }
                       `}
                     >
@@ -163,24 +163,24 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                         <div className={`
                           flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm
                           ${isCorrect 
-                            ? 'bg-green-600 text-white' 
-                            : 'bg-gray-200 text-gray-600'
+                            ? 'bg-[#3f7267] text-white' 
+                            : 'bg-[#eae2d2] text-[#6b7180]'
                           }
                         `}>
                           {String.fromCharCode(65 + index)}
                         </div>
                         <div className="flex-1">
-                          <p className={`font-medium ${isCorrect ? 'text-green-900' : 'text-gray-900'}`}>
+                          <p className={`font-medium ${isCorrect ? 'text-[#3f7267]' : 'text-[#2c3c5e]'}`}>
                             <MathRenderer text={answer.texte || ''} />
                           </p>
                           {answer.explication && (
-                            <p className="text-sm text-gray-600 mt-2 italic">
+                            <p className="text-sm text-[#6b7180] mt-2 italic">
                               <MathRenderer text={answer.explication} />
                             </p>
                           )}
                         </div>
                         {isCorrect && (
-                          <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-5 h-5 text-[#3f7267] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         )}
@@ -194,12 +194,12 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
 
           {/* General Explanation */}
           {explication && (
-            <div className="mt-6 p-6 rounded-xl bg-gray-50 border-l-4 border-gray-900">
-              <p className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+            <div className="mt-6 p-6 rounded-[10px] bg-[#f8f2e7] border-l-4 border-[#2c3c5e]">
+              <p className="text-sm font-bold text-[#2c3c5e] mb-2 flex items-center gap-2">
                 <span className="text-lg">💡</span>
                 Detailed Explanation:
               </p>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-[#6b7180] leading-relaxed">
                 <MathRenderer text={explication} />
               </p>
             </div>
@@ -211,11 +211,11 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
               onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
               disabled={currentQuestionIndex === 0}
               className={`
-                flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200
+                flex items-center gap-2 px-6 py-3 rounded-[10px] font-semibold transition-all duration-200
                 ${
                   currentQuestionIndex === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                    : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-50 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                    ? 'bg-[#f8f2e7] text-[#6b7180] cursor-not-allowed opacity-50'
+                    : 'bg-white text-[#2c3c5e] border-2 border-[#eae2d2] hover:border-[#2c3c5e] hover:bg-[#f8f2e7] transform hover:scale-105 active:scale-95 shadow-[0_2px_10px_rgba(44,60,94,0.04)] hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)]'
                 }
               `}
             >
@@ -225,7 +225,7 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
               Previous
             </button>
 
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-[#6b7180]">
               <span>{currentQuestionIndex + 1}</span>
               <span>/</span>
               <span>{questions.length}</span>
@@ -235,11 +235,11 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
               onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
               disabled={currentQuestionIndex === questions.length - 1}
               className={`
-                flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200
+                flex items-center gap-2 px-6 py-3 rounded-[10px] font-semibold transition-all duration-200
                 ${
                   currentQuestionIndex === questions.length - 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                    : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-50 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                    ? 'bg-[#f8f2e7] text-[#6b7180] cursor-not-allowed opacity-50'
+                    : 'bg-white text-[#2c3c5e] border-2 border-[#eae2d2] hover:border-[#2c3c5e] hover:bg-[#f8f2e7] transform hover:scale-105 active:scale-95 shadow-[0_2px_10px_rgba(44,60,94,0.04)] hover:shadow-[0_2px_10px_rgba(44,60,94,0.04)]'
                 }
               `}
             >
@@ -251,10 +251,10 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
           </div>
 
           {/* Back to Quiz Link */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-[#eae2d2]">
             <Link
               href={`/quiz/${quiz.slug}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition-colors font-semibold"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#2c3c5e] text-white rounded-[10px] hover:bg-[#1d2a45] transition-colors font-semibold"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

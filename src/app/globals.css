@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 .font-display {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 
 body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #fdfbf7;
+  color: #2b3244;
 }
 
 /* Import Quill styles */
@@ -15,14 +17,16 @@ body {
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-white via-gray-50 to-white text-gray-900 antialiased;
+    @apply antialiased;
+    background: #fdfbf7;
+    color: #2b3244;
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
   }
   
   html {
     scroll-behavior: smooth;
-    background: #ffffff;
+    background: #fdfbf7;
   }
 }
 
@@ -152,41 +156,38 @@ body {
   
   /* Gradient text */
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-black to-gray-800;
+    @apply text-[#2c3c5e];
   }
   
   .gradient-text-luxury {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-black to-gray-900;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    @apply text-[#2c3c5e];
   }
   
   /* Modern button */
   .btn-primary {
-    @apply px-8 py-4 rounded-xl font-semibold text-white bg-gray-900 
-           hover:bg-black transform hover:scale-105 active:scale-95 
-           transition-all duration-300 shadow-lg hover:shadow-xl;
+    @apply px-[26px] py-[13px] rounded-md font-semibold text-white bg-[#2c3c5e]
+           hover:bg-[#1d2a45] transition-all duration-150;
   }
   
   .btn-secondary {
-    @apply px-8 py-4 rounded-xl font-semibold text-gray-900 bg-white border-2 border-gray-300
-           hover:border-gray-900 hover:bg-gray-50 transform hover:scale-105 active:scale-95
-           transition-all duration-300 shadow-md hover:shadow-lg;
+    @apply px-[26px] py-[13px] rounded-md font-semibold text-[#2c3c5e] bg-transparent border border-[#eae2d2]
+           hover:border-[#2c3c5e] transition-all duration-150;
   }
   
   /* Card modern */
   .card-modern {
-    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 
-           border border-gray-200 overflow-hidden;
+    @apply bg-white rounded-[10px] transition-all duration-200
+           border border-[#eae2d2] overflow-hidden shadow-[0_2px_10px_rgba(44,60,94,0.04)];
   }
   
   /* Progress bar */
   .progress-bar {
-    @apply h-2 bg-gray-200 rounded-full overflow-hidden;
+    @apply h-2 bg-[#eae2d2] rounded-full overflow-hidden;
   }
   
   .progress-fill {
-    @apply h-full bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-full 
-           transition-all duration-500 ease-out shadow-lg shadow-black/20;
+    @apply h-full bg-[linear-gradient(90deg,#3f7267,#2c3c5e)] rounded-full 
+           transition-all duration-500 ease-out;
   }
 }
 
