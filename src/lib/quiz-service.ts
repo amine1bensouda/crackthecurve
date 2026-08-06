@@ -1,10 +1,13 @@
 import { prisma } from './db';
 import type { Quiz, Question, Category } from './types';
+import { INDEXABLE_QUIZ_WHERE, PUBLISHED_QUIZ_WHERE } from './quiz-filters';
 
 /**
  * Service pour gérer les quiz avec Prisma
  * Remplace progressivement wordpress.ts
  */
+
+export { PUBLISHED_QUIZ_WHERE, INDEXABLE_QUIZ_WHERE };
 
 /**
  * Récupère tous les quiz avec leurs questions
@@ -150,6 +153,10 @@ export async function getQuizBySlug(slug: string): Promise<Quiz | null> {
       return null;
     }
 
+    if (!quiz.questions || quiz.questions.length === 0) {
+      return null;
+    }
+
     return convertPrismaQuizToQuiz(quiz);
   } catch (error) {
     console.error(`Erreur getQuizBySlug(${slug}):`, error);
@@ -158,11 +165,12 @@ export async function getQuizBySlug(slug: string): Promise<Quiz | null> {
 }
 
 /**
- * Récupère tous les slugs de quiz
+ * Récupère les slugs de quiz indexables (cours publié ou sans module + ≥1 question).
  */
 export async function getAllQuizSlugs(): Promise<string[]> {
   try {
     const quizzes = await prisma.quiz.findMany({
+      where: INDEXABLE_QUIZ_WHERE,
       select: {
         slug: true,
       },
@@ -268,6 +276,35 @@ export async function getAllCategories(): Promise<Category[]> {
     });
   } catch (error) {
     console.error('Erreur getAllCategories:', error);
+    return [];
+  }
+}
+
+/**
+ * Slugs de catégories (modules) indexables pour le sitemap.
+ * Exclut les slugs ambigus et les modules sans quiz indexable.
+ */
+export async function getIndexableCategorySlugs(): Promise<string[]> {
+  try {
+    const modules = await prisma.module.findMany({
+      where: {
+        course: { status: 'published' },
+        quizzes: { some: INDEXABLE_QUIZ_WHERE },
+      },
+      select: { slug: true },
+      orderBy: { order: 'asc' },
+    });
+
+    const slugCounts = new Map<string, number>();
+    for (const courseModule of modules) {
+      slugCounts.set(courseModule.slug, (slugCounts.get(courseModule.slug) ?? 0) + 1);
+    }
+
+    return modules
+      .filter((courseModule) => slugCounts.get(courseModule.slug) === 1)
+      .map((courseModule) => courseModule.slug);
+  } catch (error) {
+    console.error('Erreur getIndexableCategorySlugs:', error);
     return [];
   }
 }

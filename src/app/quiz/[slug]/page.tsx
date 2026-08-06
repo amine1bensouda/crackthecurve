@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { getQuizBySlug } from '@/lib/wordpress';
 import QuizPlayer from '@/components/Quiz/QuizPlayer';
 import QuizSchema from '@/components/SEO/QuizSchema';
+import QuizQuestionsSeoContent from '@/components/SEO/QuizQuestionsSeoContent';
 import BreadcrumbSchema from '@/components/SEO/BreadcrumbSchema';
-import { SITE_NAME, SITE_URL } from '@/lib/constants';
-import { stripHtml, formatDuration, generateSlug, difficultyToEnglish, categoryToEnglish } from '@/lib/utils';
+import { SITE_URL } from '@/lib/constants';
+import { stripHtml, formatDuration, difficultyToEnglish, categoryToEnglish } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 export const revalidate = 3600; // Revalider toutes les heures
 
@@ -36,22 +38,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!quiz) {
     return {
       title: 'Quiz Not Found',
+      robots: { index: false, follow: false },
+      alternates: { canonical: `/quiz/${encodeURIComponent(params.slug)}` },
     };
   }
 
   const title = stripHtml(quiz.title.rendered);
   const description = stripHtml(quiz.excerpt?.rendered || quiz.content.rendered);
   const image = quiz.featured_media_url || '';
+  const canonicalSlug = quiz.slug || params.slug;
+  const canonical = `/quiz/${encodeURIComponent(canonicalSlug)}`;
 
   return {
     title,
     description,
+    alternates: { canonical },
     openGraph: {
       title,
       description,
       images: image ? [{ url: image }] : [],
       type: 'article',
-      url: `${SITE_URL}/quiz/${params.slug}`,
+      url: `${SITE_URL}${canonical}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -83,6 +90,7 @@ export default async function QuizPage({ params }: PageProps) {
   const difficulty = quiz.acf?.niveau_difficulte;
   const duration = quiz.acf?.duree_estimee;
   const questionCount = quiz.acf?.nombre_questions || 0;
+  const canonicalSlug = quiz.slug || decodedSlug;
   
   // Ne pas afficher "Level" si vide ou ancienne valeur par défaut "Moyen"
   const showDifficulty = difficulty && String(difficulty).trim() !== '' && difficulty !== 'Moyen';
@@ -102,7 +110,7 @@ export default async function QuizPage({ params }: PageProps) {
   const breadcrumbItems = [
     { name: 'Home', url: SITE_URL },
     { name: 'Quizzes', url: `${SITE_URL}/quiz` },
-    { name: title, url: `${SITE_URL}/quiz/${params.slug}` },
+    { name: title, url: `${SITE_URL}/quiz/${encodeURIComponent(canonicalSlug)}` },
   ];
 
   return (
@@ -145,7 +153,7 @@ export default async function QuizPage({ params }: PageProps) {
               {description && (
                 <div 
                   className="prose prose-lg mb-8 max-w-none text-lg leading-relaxed text-[#6b7180] md:text-xl"
-                  dangerouslySetInnerHTML={{ __html: description }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
                 />
               )}
 
@@ -212,7 +220,9 @@ export default async function QuizPage({ params }: PageProps) {
             </div>
           </div>
 
-        <QuizPlayer quiz={quiz} />
+          <QuizQuestionsSeoContent quiz={quiz} />
+
+          <QuizPlayer quiz={quiz} />
         </div>
       </div>
     </>

@@ -1,14 +1,14 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/constants';
-import { getAllQuizSlugs } from '@/lib/quiz-service';
+import { getAllQuizSlugs, getIndexableCategorySlugs } from '@/lib/quiz-service';
 import { getAllPublishedCourses } from '@/lib/course-service';
-import { getAllCategories } from '@/lib/quiz-service';
+
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
   const currentDate = new Date();
 
-  // Pages statiques
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -41,18 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/login`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
       url: `${baseUrl}/privacy-policy`,
       lastModified: currentDate,
       changeFrequency: 'yearly',
@@ -72,7 +60,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Récupérer tous les quiz
   let quizPages: MetadataRoute.Sitemap = [];
   try {
     const quizSlugs = await getAllQuizSlugs();
@@ -86,26 +73,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Erreur récupération slugs quiz pour sitemap:', error);
   }
 
-  // Récupérer tous les cours publiés
   let coursePages: MetadataRoute.Sitemap = [];
   try {
     const courses = await getAllPublishedCourses();
-    coursePages = courses.map((course) => ({
-      url: `${baseUrl}/quiz/course/${encodeURIComponent(course.slug)}`,
-      lastModified: course.updatedAt || currentDate,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }));
+    coursePages = courses
+      .filter((course) =>
+        course.modules.some((module) => (module._count?.quizzes ?? 0) > 0)
+      )
+      .map((course) => ({
+        url: `${baseUrl}/quiz/course/${encodeURIComponent(course.slug)}`,
+        lastModified: course.updatedAt || currentDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }));
   } catch (error) {
     console.error('Erreur récupération cours pour sitemap:', error);
   }
 
-  // Récupérer toutes les catégories
   let categoryPages: MetadataRoute.Sitemap = [];
   try {
-    const categories = await getAllCategories();
-    categoryPages = categories.map((category) => ({
-      url: `${baseUrl}/categorie/${encodeURIComponent(category.slug)}`,
+    const categorySlugs = await getIndexableCategorySlugs();
+    categoryPages = categorySlugs.map((slug) => ({
+      url: `${baseUrl}/categorie/${encodeURIComponent(slug)}`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
@@ -114,6 +103,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Erreur récupération catégories pour sitemap:', error);
   }
 
-  // Combiner toutes les pages
   return [...staticPages, ...quizPages, ...coursePages, ...categoryPages];
 }

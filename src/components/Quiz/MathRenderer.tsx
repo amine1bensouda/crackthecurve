@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
+import { latexInDoubleDollarsShouldUseBlockDisplay } from '@/lib/utils';
 
 interface MathRendererProps {
   text: string;
@@ -30,10 +31,11 @@ function stripHtml(html: string): string {
     return placeholder;
   });
   
-  // Protéger les formules inline $...$ (mais pas celles déjà protégées)
-  protectedHtml = protectedHtml.replace(/(?<!__MATH_BLOCK_\d+__)(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g, (match) => {
+  // Protéger les formules inline $...$ (autoriser les retours ligne internes)
+  protectedHtml = protectedHtml.replace(/(?<!__MATH_BLOCK_\d+__)(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g, (match) => {
     const placeholder = `__MATH_INLINE_${placeholderIndex}__`;
-    mathPlaceholders[placeholderIndex] = match;
+    // Normaliser les sauts de ligne DANS la formule → évite un découpage mid-formule
+    mathPlaceholders[placeholderIndex] = match.replace(/\s*\n\s*/g, ' ');
     placeholderIndex++;
     return placeholder;
   });
@@ -235,7 +237,8 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
   // $...$ pour les formules inline
   // Utiliser une regex plus permissive pour capturer les formules même avec espaces
   const blockMathRegex = /\$\$([\s\S]*?)\$\$/g;
-  const inlineMathRegex = /(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g;
+  // Autoriser les retours ligne dans $...$ (souvent introduits par <p>/<br> HTML)
+  const inlineMathRegex = /(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g;
 
   // Debug: logger le texte nettoyé pour voir ce qui se passe
   if (process.env.NODE_ENV === 'development' && cleanText.includes('$$')) {
@@ -289,7 +292,7 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
       start: match.index,
       end: match.index + match[0].length,
       formula: formula,
-      isBlock: true,
+      isBlock: latexInDoubleDollarsShouldUseBlockDisplay(formula),
     });
   }
 
@@ -301,8 +304,11 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
       bm => match!.index >= bm.start && match!.index < bm.end
     );
     if (!isInBlock) {
-      // Déséchapper les backslashes dans la formule
-      let formula = match[1].trim().replace(/\\\\/g, '\\');
+      // Déséchapper + collapser les retours ligne internes (formule atomique)
+      let formula = match[1]
+        .replace(/\s*\n\s*/g, ' ')
+        .trim()
+        .replace(/\\\\/g, '\\');
       allMatches.push({
         start: match.index,
         end: match.index + match[0].length,
@@ -347,13 +353,42 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
     return <span className={className}>{cleanText}</span>;
   }
 
-  // Rendre les parties en préservant les sauts de ligne
+  // Rendre les parties : formule = unité insécable (retour ligne AVANT, pas au milieu)
+  const renderParts: Array<
+    | { type: 'text'; value: string }
+    | { type: 'math'; formula: string; isBlock: boolean; trailingPunct: string }
+  > = [];
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (typeof part === 'string') {
+      if (part) renderParts.push({ type: 'text', value: part });
+      continue;
+    }
+
+    let trailingPunct = '';
+    const next = parts[i + 1];
+    if (typeof next === 'string') {
+      const punctMatch = next.match(/^([.,;:!?]+)([\s\S]*)$/);
+      if (punctMatch) {
+        trailingPunct = punctMatch[1];
+        parts[i + 1] = punctMatch[2];
+      }
+    }
+
+    renderParts.push({
+      type: 'math',
+      formula: part.formula,
+      isBlock: part.isBlock,
+      trailingPunct,
+    });
+  }
+
   return (
     <span className={className}>
-      {parts.map((part, index) => {
-        if (typeof part === 'string') {
-          // Préserver les sauts de ligne dans le texte
-          const lines = part.split('\n');
+      {renderParts.map((part, index) => {
+        if (part.type === 'text') {
+          const lines = part.value.split('\n');
           if (lines.length > 1) {
             return (
               <span key={index}>
@@ -366,22 +401,36 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
               </span>
             );
           }
-          return <span key={index}>{part}</span>;
+          return <span key={index}>{part.value}</span>;
         }
+
         try {
-          // Utiliser BlockMath pour les formules en bloc ($$...$$) et InlineMath pour les autres
           if (part.isBlock) {
-            return <BlockMath key={index} math={part.formula} />;
+            return (
+              <span key={index} className="quiz-math-block my-2 block overflow-x-auto">
+                <BlockMath math={part.formula} />
+                {part.trailingPunct}
+              </span>
+            );
           }
-          return <InlineMath key={index} math={part.formula} />;
+
+          return (
+            <span
+              key={index}
+              className="quiz-math-inline inline-block whitespace-nowrap align-baseline"
+            >
+              <InlineMath math={part.formula} />
+              {part.trailingPunct}
+            </span>
+          );
         } catch (error) {
-          // En cas d'erreur de parsing, afficher la formule brute
           console.warn('Erreur de rendu mathématique:', part.formula, error);
           return (
-            <span key={index}>
+            <span key={index} className="quiz-math-inline inline-block whitespace-nowrap">
               {part.isBlock ? '$$' : '$'}
               {part.formula}
               {part.isBlock ? '$$' : '$'}
+              {part.trailingPunct}
             </span>
           );
         }

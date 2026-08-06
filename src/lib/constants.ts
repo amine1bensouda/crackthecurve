@@ -3,7 +3,18 @@
 export const SITE_NAME = 'SonaPrep';
 export const SITE_DESCRIPTION =
   'Practice for professional licenses and certifications across engineering, nursing, accounting, construction, and more — one platform, every industry.';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://crackthecurve.vercel.app';
+
+/** Canonical toujours en non-www (évite le split d’autorité www / non-www). */
+function normalizeSiteUrl(url: string): string {
+  return url
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/^(https?:\/\/)www\./i, '$1');
+}
+
+export const SITE_URL = normalizeSiteUrl(
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://crackthecurve.vercel.app'
+);
 
 // Difficulty levels (Fundamental, Intermediate, Advanced + legacy for backward compatibility)
 export const DIFFICULTY_LEVELS: Record<string, { label: string; color: string; icon: string }> = {

@@ -4,6 +4,7 @@ import { SITE_NAME } from '@/lib/constants';
 export const metadata: Metadata = {
   title: 'About us',
   description: `Learn more about ${SITE_NAME} and our mission to help you prepare for professional licensing exams`,
+  alternates: { canonical: '/about-us' },
 };
 
 export default function AboutUsPage() {

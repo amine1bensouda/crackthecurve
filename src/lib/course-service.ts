@@ -1,5 +1,6 @@
 import { prisma } from './db';
 import { convertPrismaQuizToQuiz } from './quiz-service';
+import { INDEXABLE_QUIZ_WHERE } from './quiz-filters';
 
 /**
  * Service pour gérer les cours avec Prisma
@@ -17,10 +18,9 @@ export async function getAllPublishedCourses() {
       include: {
         modules: {
           include: {
-            _count: {
-              select: {
-                quizzes: true,
-              },
+            quizzes: {
+              where: INDEXABLE_QUIZ_WHERE,
+              select: { id: true },
             },
           },
           orderBy: {
@@ -38,7 +38,15 @@ export async function getAllPublishedCourses() {
       },
     });
 
-    return courses;
+    return courses.map((course) => ({
+      ...course,
+      modules: course.modules.map((module) => ({
+        ...module,
+        _count: {
+          quizzes: module.quizzes.length,
+        },
+      })),
+    }));
   } catch (error) {
     console.error('Erreur getAllPublishedCourses:', error);
 
@@ -62,6 +70,7 @@ export async function getCourseBySlug(slug: string) {
         modules: {
           include: {
             quizzes: {
+              where: INDEXABLE_QUIZ_WHERE,
               include: {
                 questions: {
                   include: {
@@ -103,6 +112,10 @@ export async function getCourseBySlug(slug: string) {
       modules: course.modules.map((module) => ({
         ...module,
         quizzes: module.quizzes.map(convertPrismaQuizToQuiz),
+        _count: {
+          ...module._count,
+          quizzes: module.quizzes.length,
+        },
       })),
     };
 
