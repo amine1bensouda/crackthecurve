@@ -13,7 +13,7 @@ function normalizeSiteUrl(url: string): string {
 }
 
 export const SITE_URL = normalizeSiteUrl(
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://crackthecurve.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://sonaprep.com'
 );
 
 // Difficulty levels (Fundamental, Intermediate, Advanced + legacy for backward compatibility)

@@ -7,8 +7,14 @@ import { SITE_DESCRIPTION } from '@/lib/constants';
 import { formatDuration, formatNumber, stripHtml } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Professional License & Certification Exam Prep',
+  title: {
+    absolute: 'SonaPrep — Professional License & Certification Exam Prep',
+  },
   description: SITE_DESCRIPTION,
+  openGraph: {
+    title: 'SonaPrep — Professional License & Certification Exam Prep',
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export const dynamic = 'force-dynamic';
