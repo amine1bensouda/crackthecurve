@@ -2,6 +2,8 @@ import type { Quiz } from '@/lib/types';
 import { SITE_URL } from '@/lib/constants';
 import { stripHtml } from '@/lib/utils';
 import { safeJsonLd } from '@/lib/sanitize-html';
+import { questionPlainTextForSeo } from '@/lib/seo-questions';
+import { questionPlainTextForSeo } from '@/lib/seo-questions';
 
 interface QuizSchemaProps {
   quiz: Quiz;
@@ -19,14 +21,10 @@ export default function QuizSchema({ quiz }: QuizSchemaProps) {
       question.title?.rendered ||
       question.content?.rendered ||
       `Question ${index + 1}`;
-    const withAlt = raw.replace(
-      /<img\b[^>]*\balt\s*=\s*(["'])(.*?)\1[^>]*>/gi,
-      (_match, _q: string, alt: string) => (alt.trim() ? ` ${alt.trim()} ` : ' ')
-    );
-    const text = stripHtml(withAlt).replace(/\s+/g, ' ').trim() || `Question ${index + 1}`;
+    const text = questionPlainTextForSeo(raw, `Question ${index + 1}`);
     const answers = question.reponses || question.acf?.reponses || [];
     const suggestedAnswers = answers
-      .map((answer) => stripHtml(answer.texte || ''))
+      .map((answer) => questionPlainTextForSeo(answer.texte, ''))
       .filter(Boolean)
       .map((answerText) => ({
         '@type': 'Answer',

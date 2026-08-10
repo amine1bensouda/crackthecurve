@@ -1,42 +1,10 @@
-'use client';
-
 import type { Quiz } from '@/lib/types';
-import { questionStemNeedsHtmlRenderer } from '@/lib/utils';
-import MathRenderer from '@/components/Quiz/MathRenderer';
-import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
-
-function prepareStem(raw: string | undefined | null, fallback: string): string {
-  if (!raw || !raw.trim()) return fallback;
-  return raw;
-}
-
-function QuizMathText({ raw, fallback }: { raw: string | undefined | null; fallback: string }) {
-  const text = prepareStem(raw, fallback);
-  if (!text.trim()) return null;
-
-  if (questionStemNeedsHtmlRenderer(text)) {
-    return (
-      <HtmlWithMathRenderer
-        html={text}
-        className="prose prose-sm max-w-none inline"
-      />
-    );
-  }
-
-  // Nettoyage léger comme Question.tsx (sans stripper le LaTeX)
-  const cleaned = text
-    .replace(/<p[^>]*>/gi, '')
-    .replace(/<\/p>/gi, '\n\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/?div[^>]*>/gi, ' ')
-    .replace(/<\/?span[^>]*>/gi, '');
-
-  return <MathRenderer text={cleaned || fallback} />;
-}
+import { questionPlainTextForSeo } from '@/lib/seo-questions';
 
 /**
- * Questions en HTML (SSR client) avec KaTeX — lisibles humains + crawlables.
- * Placées AVANT le QuizPlayer pour apparaître tôt dans le HTML.
+ * Questions en HTML serveur (SSR) — texte réel dans le HTML initial.
+ * Composant serveur (pas de 'use client') : Googlebot/Gemini voient tout sans exécuter JS.
+ * Masqué visuellement (sr-only) pour ne pas dupliquer le quiz interactif.
  */
 export default function QuizQuestionsSeoContent({ quiz }: { quiz: Quiz }) {
   const questions = quiz.acf?.questions || [];
@@ -44,36 +12,30 @@ export default function QuizQuestionsSeoContent({ quiz }: { quiz: Quiz }) {
 
   return (
     <section
-      aria-label="Quiz questions"
-      className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 md:p-8"
+      aria-label="Quiz questions for search engines"
+      className="sr-only"
       data-seo-quiz-questions="true"
     >
-      <h2 className="text-2xl font-bold text-gray-900">
-        Questions in this quiz ({questions.length})
-      </h2>
-      <ol className="mt-6 space-y-6 list-decimal list-inside">
+      <h2>Questions in this quiz ({questions.length})</h2>
+      <ol>
         {questions.map((question, index) => {
-          const raw =
+          const text = questionPlainTextForSeo(
             question.texte_question ||
-            question.title?.rendered ||
-            question.content?.rendered ||
-            `Question ${index + 1}`;
+              question.title?.rendered ||
+              question.content?.rendered,
+            `Question ${index + 1}`
+          );
           const answers = question.reponses || question.acf?.reponses || [];
 
           return (
-            <li key={question.id ?? index} className="text-gray-900">
-              <span className="font-medium leading-relaxed [&>*]:inline">
-                <QuizMathText raw={raw} fallback={`Question ${index + 1}`} />
-              </span>
+            <li key={question.id ?? index}>
+              <p>{text}</p>
               {answers.length > 0 && (
-                <ul className="mt-2 ml-5 list-disc space-y-1 text-gray-700">
+                <ul>
                   {answers.map((answer, answerIndex) => {
-                    if (!answer.texte?.trim()) return null;
-                    return (
-                      <li key={answerIndex} className="[&>*]:inline">
-                        <QuizMathText raw={answer.texte} fallback="" />
-                      </li>
-                    );
+                    const answerText = questionPlainTextForSeo(answer.texte, '');
+                    if (!answerText) return null;
+                    return <li key={answerIndex}>{answerText}</li>;
                   })}
                 </ul>
               )}
