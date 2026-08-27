@@ -1,0 +1,168 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { isFullRequest } from '@/lib/request-utils';
+import { invalidatePublishedBlogsCache } from '@/lib/cache';
+import { prisma } from '@/lib/db';
+
+
+export const dynamic = 'force-dynamic';
+
+/**
+ * GET /api/admin/blogs/[id]
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const { id } = await Promise.resolve(params);
+    const full = isFullRequest(request);
+    const blog = full
+      ? await prisma.blogPost.findUnique({ where: { id } })
+      : await prisma.blogPost.findUnique({
+          where: { id },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            category: true,
+            status: true,
+            publishedAt: true,
+            updatedAt: true,
+          },
+        });
+
+    if (!blog) {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(blog);
+  } catch (error: any) {
+    console.error('Erreur récupération blog:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch blog post', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/admin/blogs/[id]
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const { id } = await Promise.resolve(params);
+    const body = await request.json();
+    const {
+      title,
+      slug,
+      excerpt,
+      content,
+      category,
+      tags,
+      ctaLink,
+      ctaText,
+      metaTitle,
+      metaDescription,
+      status,
+    } = body;
+
+    const existing = await prisma.blogPost.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
+
+    const wasPublished = existing.status === 'published';
+    const isNowPublished = status === 'published';
+
+    const updateData = {
+      ...(title !== undefined && { title }),
+      ...(slug !== undefined && { slug }),
+      ...(excerpt !== undefined && { excerpt }),
+      ...(content !== undefined && { content }),
+      ...(category !== undefined && { category }),
+      ...(tags !== undefined && { tags }),
+      ...(ctaLink !== undefined && { ctaLink: ctaLink || null }),
+      ...(ctaText !== undefined && { ctaText: ctaText || null }),
+      ...(metaTitle !== undefined && { metaTitle: metaTitle || null }),
+      ...(metaDescription !== undefined && {
+        metaDescription: metaDescription || null,
+      }),
+      ...(status !== undefined && { status }),
+      ...(!wasPublished && isNowPublished && { publishedAt: new Date() }),
+    };
+
+    const full = isFullRequest(request);
+    const blog = full
+      ? await prisma.blogPost.update({
+          where: { id },
+          data: updateData,
+        })
+      : await prisma.blogPost.update({
+          where: { id },
+          data: updateData,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            category: true,
+            status: true,
+            publishedAt: true,
+            updatedAt: true,
+          },
+        });
+
+    invalidatePublishedBlogsCache();
+
+    return NextResponse.json(blog);
+  } catch (error: any) {
+    console.error('Erreur mise à jour blog:', error);
+
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'A blog post with this slug already exists' },
+        { status: 409 }
+      );
+    }
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to update blog post', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/admin/blogs/[id]
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const { id } = await Promise.resolve(params);
+
+    await prisma.blogPost.delete({ where: { id } });
+    invalidatePublishedBlogsCache();
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Erreur suppression blog:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to delete blog post', details: error.message },
+      { status: 500 }
+    );
+  }
+}

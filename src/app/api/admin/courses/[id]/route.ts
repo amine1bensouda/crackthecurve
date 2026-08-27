@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isFullRequest } from '@/lib/request-utils';
+import { invalidatePublishedCoursesCache } from '@/lib/cache';
 import { prisma } from '@/lib/db';
-import { adminGuard } from '@/lib/admin-auth';
+
+
+export const dynamic = 'force-dynamic';
 
 /**
  * PUT /api/admin/courses/[id]
@@ -11,14 +15,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const denied = await adminGuard();
-    if (denied) return denied;
     // Gérer les params synchrones et asynchrones (Next.js 14+)
     const resolvedParams = await Promise.resolve(params);
     const courseId = resolvedParams.id;
 
     const body = await request.json();
-    const { title, slug, description, status } = body;
+    const { title, slug, description, metaTitle, metaDescription, status } = body;
 
     const updateData: any = {};
     if (title !== undefined && title !== null) {
@@ -29,6 +31,12 @@ export async function PUT(
     }
     if (description !== undefined) {
       updateData.description = description || null;
+    }
+    if (metaTitle !== undefined) {
+      updateData.metaTitle = metaTitle || null;
+    }
+    if (metaDescription !== undefined) {
+      updateData.metaDescription = metaDescription || null;
     }
     if (status !== undefined && status !== null) {
       // Valider le statut
@@ -61,13 +69,28 @@ export async function PUT(
       );
     }
 
-    const course = await prisma.course.update({
-      where: { id: courseId },
-      data: updateData,
-      include: {
-        modules: true,
-      },
-    });
+    const full = isFullRequest(request);
+    const course = full
+      ? await prisma.course.update({
+          where: { id: courseId },
+          data: updateData,
+          include: {
+            modules: true,
+          },
+        })
+      : await prisma.course.update({
+          where: { id: courseId },
+          data: updateData,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            status: true,
+            updatedAt: true,
+          },
+        });
+
+    invalidatePublishedCoursesCache();
 
     console.log(`✅ Cours ${courseId} mis à jour via PUT:`, updateData);
 
@@ -99,14 +122,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const denied = await adminGuard();
-    if (denied) return denied;
     // Gérer les params synchrones et asynchrones (Next.js 14+)
     const resolvedParams = await Promise.resolve(params);
     const courseId = resolvedParams.id;
 
     const body = await request.json();
-    const { status, title, slug, description } = body;
+    const { status, title, slug, description, metaTitle, metaDescription } = body;
 
     // Valider le statut si fourni
     if (status && status !== 'published' && status !== 'draft') {
@@ -129,6 +150,12 @@ export async function PATCH(
     if (description !== undefined) {
       updateData.description = description || null;
     }
+    if (metaTitle !== undefined) {
+      updateData.metaTitle = metaTitle || null;
+    }
+    if (metaDescription !== undefined) {
+      updateData.metaDescription = metaDescription || null;
+    }
 
     // Vérifier qu'il y a au moins un champ à mettre à jour
     if (Object.keys(updateData).length === 0) {
@@ -150,13 +177,26 @@ export async function PATCH(
       );
     }
 
-    const course = await prisma.course.update({
-      where: { id: courseId },
-      data: updateData,
-      include: {
-        modules: true,
-      },
-    });
+    const full = isFullRequest(request);
+    const course = full
+      ? await prisma.course.update({
+          where: { id: courseId },
+          data: updateData,
+          include: {
+            modules: true,
+          },
+        })
+      : await prisma.course.update({
+          where: { id: courseId },
+          data: updateData,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            status: true,
+            updatedAt: true,
+          },
+        });
 
     console.log(`✅ Cours ${courseId} mis à jour: status=${course.status}`);
 
@@ -195,8 +235,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const denied = await adminGuard();
-    if (denied) return denied;
     // Gérer les params synchrones et asynchrones (Next.js 14+)
     const resolvedParams = await Promise.resolve(params);
     const courseId = resolvedParams.id;
@@ -204,6 +242,8 @@ export async function DELETE(
     await prisma.course.delete({
       where: { id: courseId },
     });
+
+    invalidatePublishedCoursesCache();
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

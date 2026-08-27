@@ -1,10 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 
-// Import dynamique pour éviter les erreurs SSR
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import('react-quill');
+    // eslint-disable-next-line react/display-name
+    return ({ forwardedRef, ...props }: any) => <RQ ref={forwardedRef} {...props} />;
+  },
+  { ssr: false }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -24,53 +30,84 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const [localValue, setLocalValue] = useState(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const quillRef = useRef<any>(null);
 
-  // Synchroniser localValue avec la prop value si elle change de l'extérieur
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
-  // Debounce onChange pour éviter trop d'appels
   const handleChange = (newValue: string) => {
     setLocalValue(newValue);
-    
-    // Annuler le timeout précédent
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    // Appeler onChange après 300ms de délai
-    timeoutRef.current = setTimeout(() => {
-      onChange(newValue);
-    }, 300);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => onChange(newValue), 300);
   };
 
-  // Nettoyer le timeout au démontage
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/jpeg,image/png,image/gif,image/webp');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('/api/admin/upload/image', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+          alert(data.error || 'Image upload failed');
+          return;
+        }
+
+        const editor = quillRef.current?.getEditor?.();
+        if (!editor) return;
+        const range = editor.getSelection(true);
+        const index = range?.index ?? editor.getLength();
+        editor.insertEmbed(index, 'image', data.url);
+        editor.setSelection(index + 1);
+      } catch (error) {
+        console.error('Image upload error:', error);
+        alert('Image upload failed');
       }
     };
   }, []);
 
-  // Configuration des modules Quill
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ font: [] }],
-      [{ size: [] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-      [{ color: [] }, { background: [] }],
-      [{ align: [] }],
-      ['link', 'image', 'video'],
-      ['clean'],
-    ],
-    clipboard: {
-      matchVisual: false,
-    },
-  };
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          [{ font: [] }],
+          [{ size: [] }],
+          ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+          [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          ['link', 'image', 'video'],
+          ['clean'],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
+      clipboard: {
+        matchVisual: false,
+      },
+    }),
+    [imageHandler]
+  );
 
   const formats = [
     'header',
@@ -124,8 +161,13 @@ export default function RichTextEditor({
           color: #9ca3af;
           font-style: normal;
         }
+        .rich-text-editor .ql-editor img {
+          max-width: 100%;
+          height: auto;
+        }
       `}</style>
       <ReactQuill
+        forwardedRef={quillRef}
         theme="snow"
         value={localValue}
         onChange={handleChange}

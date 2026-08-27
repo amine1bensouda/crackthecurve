@@ -1,10 +1,8 @@
 import type { Prisma } from '@prisma/client';
 
-/**
- * Quiz visibles publiquement (cours publié ou sans module).
- * Note: crackthecurve n'a pas de champ isEnabled sur Quiz.
- */
+/** Quiz visibles publiquement (cours publié ou sans module, enabled). */
 export const PUBLISHED_QUIZ_WHERE: Prisma.QuizWhereInput = {
+  isEnabled: true,
   OR: [
     {
       module: {

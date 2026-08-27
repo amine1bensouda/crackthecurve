@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RichTextEditor from './RichTextEditor';
+import SeoFields from './SeoFields';
+import { stripHtml } from '@/lib/utils';
 
 interface CourseFormData {
   id?: string;
   title: string;
   slug: string;
   description: string;
+  metaTitle: string;
+  metaDescription: string;
   status: 'published' | 'draft';
 }
 
@@ -23,6 +27,8 @@ export default function CourseForm({ initialData }: CourseFormProps) {
     title: '',
     slug: '',
     description: '',
+    metaTitle: '',
+    metaDescription: '',
     status: 'draft',
     ...initialData,
   });
@@ -59,6 +65,8 @@ export default function CourseForm({ initialData }: CourseFormProps) {
         title: formData.title,
         slug: formData.slug,
         description: formData.description || '',
+        metaTitle: formData.metaTitle || null,
+        metaDescription: formData.metaDescription || null,
         ...(formData.status && { status: formData.status }),
       };
 
@@ -153,6 +161,19 @@ export default function CourseForm({ initialData }: CourseFormProps) {
           </div>
         </div>
       </div>
+
+      <SeoFields
+        metaTitle={formData.metaTitle}
+        metaDescription={formData.metaDescription}
+        defaultTitle={formData.title}
+        defaultDescription={stripHtml(formData.description || '')}
+        onMetaTitleChange={(value) =>
+          setFormData((prev) => ({ ...prev, metaTitle: value }))
+        }
+        onMetaDescriptionChange={(value) =>
+          setFormData((prev) => ({ ...prev, metaDescription: value }))
+        }
+      />
 
       <div className="flex items-center justify-end space-x-4">
         <button

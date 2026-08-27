@@ -28,6 +28,10 @@ export default function AdminNav() {
     { href: '/admin/modules', label: 'Modules', icon: '📦' },
     { href: '/admin/lessons', label: 'Lessons', icon: '📄' },
     { href: '/admin/quizzes', label: 'Quizzes', icon: '📝' },
+    { href: '/admin/sync', label: 'Sync premium', icon: '🔄' },
+    { href: '/admin/blogs', label: 'Blogs', icon: '📰' },
+    { href: '/admin/pages', label: 'Pages', icon: '📄' },
+    { href: '/admin/comments', label: 'Commentaires', icon: '💬' },
   ];
 
   return (

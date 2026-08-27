@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 import { adminGuard } from '@/lib/admin-auth';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: 'File too large. Max 5 MB.' },
+        { error: 'File too large. Max 10 MB.' },
         { status: 400 }
       );
     }

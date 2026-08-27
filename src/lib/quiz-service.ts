@@ -353,6 +353,8 @@ export function convertPrismaQuizToQuiz(prismaQuiz: any): Quiz {
     excerpt: {
       rendered: prismaQuiz.excerpt || '',
     },
+    metaTitle: prismaQuiz.metaTitle || null,
+    metaDescription: prismaQuiz.metaDescription || null,
     featured_media: 0,
     featured_media_url: prismaQuiz.featuredImageUrl || prismaQuiz.featuredImage || undefined,
     acf: {

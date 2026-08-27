@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import QuizForm from '@/components/Admin/QuizForm';
+import QuizSyncSettings from '@/components/Admin/QuizSyncSettings';
 
 const quizInclude = {
   module: {
@@ -62,6 +63,8 @@ export default async function EditQuizPage({ params }: { params: { id: string } 
     moduleId: quiz.moduleId || '',
     description: quiz.description || '',
     excerpt: quiz.excerpt || '',
+    metaTitle: quiz.metaTitle || '',
+    metaDescription: quiz.metaDescription || '',
     duration: quiz.duration,
     // Normaliser la difficulté : utiliser '' quand la valeur est null
     difficulty: quiz.difficulty ?? '',
@@ -98,6 +101,13 @@ export default async function EditQuizPage({ params }: { params: { id: string } 
         </h1>
         <p className="text-gray-600">Modify quiz information</p>
       </div>
+      <QuizSyncSettings
+        quizId={quiz.id}
+        sourceQuizId={quiz.sourceQuizId}
+        isEnabled={quiz.isEnabled}
+        lockLocalEdits={quiz.lockLocalEdits}
+        sourceSyncedAt={quiz.sourceSyncedAt?.toISOString() ?? null}
+      />
       <QuizForm initialData={quizData} />
     </div>
   );

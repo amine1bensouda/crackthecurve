@@ -24,6 +24,8 @@ export default async function EditCoursePage({
     title: course.title,
     slug: course.slug,
     description: course.description || '',
+    metaTitle: course.metaTitle || '',
+    metaDescription: course.metaDescription || '',
     status: (course.status as 'published' | 'draft') || 'draft',
   };
 

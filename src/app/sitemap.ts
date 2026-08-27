@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/constants';
 import { getAllQuizSlugs, getIndexableCategorySlugs } from '@/lib/quiz-service';
 import { getAllPublishedCourses } from '@/lib/course-service';
+import { getAllPublishedBlogsData, getAllPublishedPagesData } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,5 +104,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Erreur récupération catégories pour sitemap:', error);
   }
 
-  return [...staticPages, ...quizPages, ...coursePages, ...categoryPages];
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const blogs = await getAllPublishedBlogsData();
+    blogPages = blogs.map((blog) => ({
+      url: `${baseUrl}/blogs/${encodeURIComponent(blog.slug || blog.id)}`,
+      lastModified: blog.publishedAt || blog.createdAt || currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+  } catch (error) {
+    console.error('Erreur récupération blogs pour sitemap:', error);
+  }
+
+  let customPages: MetadataRoute.Sitemap = [];
+  try {
+    const pages = await getAllPublishedPagesData();
+    customPages = pages
+      .filter((page) => !page.noIndex)
+      .map((page) => ({
+        url: `${baseUrl}/pages/${encodeURIComponent(page.slug)}`,
+        lastModified: page.updatedAt || page.publishedAt || currentDate,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      }));
+  } catch (error) {
+    console.error('Erreur récupération pages custom pour sitemap:', error);
+  }
+
+  return [
+    ...staticPages,
+    ...quizPages,
+    ...coursePages,
+    ...categoryPages,
+    ...blogPages,
+    ...customPages,
+  ];
 }

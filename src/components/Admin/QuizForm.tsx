@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import QuestionEditor from './QuestionEditor';
 import RichTextEditor from './RichTextEditor';
 import ImageUploadField from './ImageUploadField';
+import SeoFields from './SeoFields';
+import { stripHtml } from '@/lib/utils';
+import { replaceBase64ImagesInHtml, resolveImageUrl } from '@/lib/replace-base64-images';
 
 interface Course {
   id: string;
@@ -49,6 +52,8 @@ interface QuizFormData {
   moduleId: string;
   description: string;
   excerpt: string;
+  metaTitle: string;
+  metaDescription: string;
   duration?: number;
   difficulty?: string;
   passingGrade?: number;
@@ -77,6 +82,8 @@ export default function QuizForm({ initialData }: QuizFormProps) {
     moduleId: '',
     description: '',
     excerpt: '',
+    metaTitle: '',
+    metaDescription: '',
     duration: undefined,
     difficulty: undefined,
     passingGrade: undefined,
@@ -232,6 +239,34 @@ export default function QuizForm({ initialData }: QuizFormProps) {
     setLoading(true);
 
     try {
+      // Convertir les images base64 → fichiers /uploads (évite payload trop gros / Error saving)
+      const description = await replaceBase64ImagesInHtml(formData.description || '');
+      const excerpt = await replaceBase64ImagesInHtml(formData.excerpt || '');
+      const questions = [];
+      for (let qIndex = 0; qIndex < formData.questions.length; qIndex++) {
+        const q = formData.questions[qIndex];
+        const text = await replaceBase64ImagesInHtml(q.text || '');
+        const explanation = await replaceBase64ImagesInHtml(q.explanation || '');
+        const answers = [];
+        for (let aIndex = 0; aIndex < (q.answers || []).length; aIndex++) {
+          const a = q.answers[aIndex];
+          answers.push({
+            ...a,
+            text: await replaceBase64ImagesInHtml(a.text || ''),
+            explanation: await replaceBase64ImagesInHtml(a.explanation || ''),
+            imageUrl: await resolveImageUrl(a.imageUrl),
+            order: aIndex,
+          });
+        }
+        questions.push({
+          ...q,
+          text,
+          explanation,
+          order: qIndex,
+          answers,
+        });
+      }
+
       const url = initialData
         ? `/api/admin/quizzes/${initialData.id}`
         : '/api/admin/quizzes';
@@ -242,19 +277,14 @@ export default function QuizForm({ initialData }: QuizFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          description,
+          excerpt,
           moduleId: formData.moduleId || null,
           duration: formData.duration || null,
           difficulty: formData.difficulty ?? '',
           passingGrade: formData.passingGrade || null,
           maxQuestions: formData.maxQuestions || null,
-          questions: formData.questions.map((q, qIndex) => ({
-            ...q,
-            order: qIndex,
-            answers: q.answers.map((a, aIndex) => ({
-              ...a,
-              order: aIndex,
-            })),
-          })),
+          questions,
         }),
       });
 
@@ -263,12 +293,20 @@ export default function QuizForm({ initialData }: QuizFormProps) {
         router.refresh();
       } else {
         const data = await response.json().catch(() => ({}));
-        const message = data.details ? `${data.error || 'Error saving'}: ${data.details}` : (data.error || 'Error saving');
-        alert(message);
+        if (response.status === 413) {
+          alert('Payload too large (413). Too many embedded images — wait for uploads to finish, then save again.');
+        } else {
+          const message = data.details
+            ? `${data.error || 'Error saving'}: ${data.details}`
+            : data.error || `Error saving (HTTP ${response.status})`;
+          alert(message);
+        }
       }
     } catch (error) {
       console.error('Erreur sauvegarde:', error);
-      alert('Error saving');
+      alert(
+        'Error saving: request failed (often because images are embedded as base64 and the payload is too large). Images will now be uploaded as files — try saving again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -346,7 +384,7 @@ export default function QuizForm({ initialData }: QuizFormProps) {
               {/* Formulaire de création de cours */}
               {showCreateCourse && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-3">Créer un nouveau cours</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">Create a new course</h3>
                   <div className="space-y-3">
                     <input
                       type="text"
@@ -381,7 +419,7 @@ export default function QuizForm({ initialData }: QuizFormProps) {
                         onClick={handleCreateCourse}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
                       >
-                        Créer
+                        Create
                       </button>
                       <button
                         type="button"
@@ -481,6 +519,19 @@ export default function QuizForm({ initialData }: QuizFormProps) {
             </div>
           </div>
         </div>
+
+        <SeoFields
+          metaTitle={formData.metaTitle}
+          metaDescription={formData.metaDescription}
+          defaultTitle={formData.title}
+          defaultDescription={stripHtml(formData.excerpt || formData.description || '')}
+          onMetaTitleChange={(value) =>
+            setFormData((prev) => ({ ...prev, metaTitle: value }))
+          }
+          onMetaDescriptionChange={(value) =>
+            setFormData((prev) => ({ ...prev, metaDescription: value }))
+          }
+        />
 
         {/* Paramètres */}
         <div>

@@ -13,6 +13,8 @@ export interface Quiz {
   excerpt: {
     rendered: string;
   };
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   featured_media: number;
   featured_media_url?: string;
   acf?: {

@@ -3,12 +3,16 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getQuizBySlug } from '@/lib/wordpress';
 import QuizPlayer from '@/components/Quiz/QuizPlayer';
+import CommentsSection from '@/components/Comments/CommentsSection';
 import QuizSchema from '@/components/SEO/QuizSchema';
 import QuizQuestionsSeoContent from '@/components/SEO/QuizQuestionsSeoContent';
 import BreadcrumbSchema from '@/components/SEO/BreadcrumbSchema';
+import FaqSchema from '@/components/SEO/FaqSchema';
 import { SITE_URL } from '@/lib/constants';
 import { stripHtml, formatDuration, difficultyToEnglish, categoryToEnglish } from '@/lib/utils';
 import { sanitizeHtml } from '@/lib/sanitize-html';
+import { buildQuizFaqs, buildQuizIntro } from '@/lib/seo-content';
+import { resolveSeoDescription, resolveSeoTitle, buildQuizPublicTitle } from '@/lib/seo-meta';
 
 export const revalidate = 3600; // Revalider toutes les heures
 
@@ -43,27 +47,45 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = stripHtml(quiz.title.rendered);
-  const description = stripHtml(quiz.excerpt?.rendered || quiz.content.rendered);
+  const rawTitle = stripHtml(quiz.title.rendered);
+  const title = buildQuizPublicTitle({
+    title: rawTitle,
+    category: quiz.acf?.categorie,
+    slug: quiz.slug || params.slug,
+  });
+  const fallbackDescription = stripHtml(quiz.excerpt?.rendered || quiz.content.rendered);
+  const seoTitle = resolveSeoTitle(quiz.metaTitle, title);
+  const seoDescription = resolveSeoDescription(
+    quiz.metaDescription,
+    fallbackDescription,
+    buildQuizIntro({
+      title,
+      category: quiz.acf?.categorie,
+      difficulty: quiz.acf?.niveau_difficulte,
+      questionCount: quiz.acf?.nombre_questions,
+      durationMinutes: quiz.acf?.duree_estimee,
+      existingExcerptPlain: fallbackDescription,
+    }) || `Free ${title} practice quiz on SonaPrep.`
+  );
   const image = quiz.featured_media_url || '';
   const canonicalSlug = quiz.slug || params.slug;
   const canonical = `/quiz/${encodeURIComponent(canonicalSlug)}`;
 
   return {
-    title,
-    description,
+    title: seoTitle,
+    description: seoDescription,
     alternates: { canonical },
     openGraph: {
-      title,
-      description,
+      title: seoTitle,
+      description: seoDescription,
       images: image ? [{ url: image }] : [],
       type: 'article',
       url: `${SITE_URL}${canonical}`,
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
+      title: seoTitle,
+      description: seoDescription,
       images: image ? [image] : [],
     },
   };
@@ -85,8 +107,27 @@ export default async function QuizPage({ params }: PageProps) {
     notFound();
   }
 
-  const title = stripHtml(quiz.title.rendered);
+  const rawTitle = stripHtml(quiz.title.rendered);
+  const title = buildQuizPublicTitle({
+    title: rawTitle,
+    category: quiz.acf?.categorie,
+    slug: quiz.slug || decodedSlug,
+  });
   const description = quiz.excerpt?.rendered || '';
+  const intro = buildQuizIntro({
+    title,
+    category: quiz.acf?.categorie,
+    difficulty: quiz.acf?.niveau_difficulte,
+    questionCount: quiz.acf?.nombre_questions,
+    durationMinutes: quiz.acf?.duree_estimee,
+    existingExcerptPlain: stripHtml(description),
+  });
+  const faqs = buildQuizFaqs({
+    title,
+    category: quiz.acf?.categorie,
+    questionCount: quiz.acf?.nombre_questions,
+    durationMinutes: quiz.acf?.duree_estimee,
+  });
   const difficulty = quiz.acf?.niveau_difficulte;
   const duration = quiz.acf?.duree_estimee;
   const questionCount = quiz.acf?.nombre_questions || 0;
@@ -117,6 +158,7 @@ export default async function QuizPage({ params }: PageProps) {
     <>
       <QuizSchema quiz={quiz} />
       <BreadcrumbSchema items={breadcrumbItems} />
+      {faqs.length > 0 ? <FaqSchema items={faqs} /> : null}
 
       <div className="bg-[#fdfbf7]">
         <div className="mx-auto max-w-[1160px] px-6 py-8 md:py-12">
@@ -150,10 +192,10 @@ export default async function QuizPage({ params }: PageProps) {
             )}
 
             <div className="rounded-[10px] border border-[#eae2d2] bg-white p-6 shadow-[0_2px_10px_rgba(44,60,94,0.04)] md:p-8">
-              {description && (
-                <div 
+              {(intro || description) && (
+                <div
                   className="prose prose-lg mb-8 max-w-none text-lg leading-relaxed text-[#6b7180] md:text-xl"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(intro || description) }}
                 />
               )}
 
@@ -223,6 +265,10 @@ export default async function QuizPage({ params }: PageProps) {
           <QuizQuestionsSeoContent quiz={quiz} />
 
           <QuizPlayer quiz={quiz} />
+
+          <div className="mt-12">
+            <CommentsSection targetType="quiz" targetSlug={canonicalSlug} />
+          </div>
         </div>
       </div>
     </>

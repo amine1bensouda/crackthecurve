@@ -3,7 +3,6 @@ import { SITE_URL } from '@/lib/constants';
 import { stripHtml } from '@/lib/utils';
 import { safeJsonLd } from '@/lib/sanitize-html';
 import { questionPlainTextForSeo } from '@/lib/seo-questions';
-import { questionPlainTextForSeo } from '@/lib/seo-questions';
 
 interface QuizSchemaProps {
   quiz: Quiz;
