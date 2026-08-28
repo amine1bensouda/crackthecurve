@@ -5,6 +5,7 @@ import MathRenderer from './MathRenderer';
 import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
 import QuizImage from '@/components/Common/QuizImage';
 import { normalizeMediaUrl } from '@/lib/media-url';
+import { questionStemNeedsHtmlRenderer } from '@/lib/utils';
 
 interface QuestionProps {
   question: QuestionType;
@@ -72,6 +73,7 @@ export default function Question({
   // Vérifier si le texte contient des images base64 ou des balises <img> avant de nettoyer
   const hasImages = questionText && typeof questionText === 'string' && 
     (questionText.includes('<img') || questionText.includes('data:image/'));
+  const needsHtmlRenderer = hasImages || questionStemNeedsHtmlRenderer(questionText);
   
   // Nettoyer et améliorer le formatage du texte seulement si pas d'images
   // Si le texte contient des images, on le garde tel quel pour SafeHtmlRenderer
@@ -169,7 +171,7 @@ export default function Question({
 
         {/* Texte de la question */}
         <div className="mb-8">
-          {hasImages ? (
+          {needsHtmlRenderer ? (
             <div className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
               <HtmlWithMathRenderer 
                 html={questionText || ''}

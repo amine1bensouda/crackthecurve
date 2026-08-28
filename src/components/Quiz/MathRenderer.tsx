@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 import { latexInDoubleDollarsShouldUseBlockDisplay } from '@/lib/utils';
+import {
+  findInlineMathMatches,
+  looksLikeLatexMath,
+  protectCurrencyAmounts,
+} from '@/lib/latex-parse';
 
 interface MathRendererProps {
   text: string;
@@ -32,9 +37,9 @@ function stripHtml(html: string): string {
   });
   
   // Protéger les formules inline $...$ (autoriser les retours ligne internes)
-  protectedHtml = protectedHtml.replace(/(?<!__MATH_BLOCK_\d+__)(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g, (match) => {
+  protectedHtml = protectedHtml.replace(/(?<!__MATH_BLOCK_\d+__)(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g, (match, inner) => {
+    if (!looksLikeLatexMath(String(inner))) return match;
     const placeholder = `__MATH_INLINE_${placeholderIndex}__`;
-    // Normaliser les sauts de ligne DANS la formule → évite un découpage mid-formule
     mathPlaceholders[placeholderIndex] = match.replace(/\s*\n\s*/g, ' ');
     placeholderIndex++;
     return placeholder;
@@ -232,34 +237,19 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
   cleanText = cleanText.replace(/&#36;/g, '$');
   cleanText = cleanText.replace(/&dollar;/g, '$');
 
+  const currencyGuard = protectCurrencyAmounts(cleanText);
+  cleanText = currencyGuard.text;
+
   // Pattern pour détecter les formules mathématiques
-  // $$...$$ pour les formules en bloc (tableaux, arrays, etc.)
-  // $...$ pour les formules inline
-  // Utiliser une regex plus permissive pour capturer les formules même avec espaces
   const blockMathRegex = /\$\$([\s\S]*?)\$\$/g;
-  // Autoriser les retours ligne dans $...$ (souvent introduits par <p>/<br> HTML)
-  const inlineMathRegex = /(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g;
 
-  // Debug: logger le texte nettoyé pour voir ce qui se passe
-  if (process.env.NODE_ENV === 'development' && cleanText.includes('$$')) {
-    console.log('🔍 Texte avec formules détectées:', cleanText.substring(0, 200));
-  }
-
-  // Vérifier s'il y a des formules mathématiques
   const hasBlockMath = blockMathRegex.test(cleanText);
-  const hasInlineMath = inlineMathRegex.test(cleanText);
-  
-  // Debug
-  if (process.env.NODE_ENV === 'development') {
-    if (cleanText.includes('$$') && !hasBlockMath) {
-      console.warn('⚠️ Formules $$ détectées dans le texte mais non reconnues par la regex');
-    }
-  }
+  const inlineMatchesPreview = findInlineMathMatches(cleanText);
+  const hasInlineMath = inlineMatchesPreview.length > 0;
 
-  // Si pas de formules mathématiques, retourner le texte nettoyé avec préservation des sauts de ligne
   if (!hasBlockMath && !hasInlineMath) {
-    // Préserver les sauts de ligne en les convertissant en <br />
-    const lines = cleanText.split('\n');
+    const plainText = currencyGuard.restore(cleanText);
+    const lines = plainText.split('\n');
     if (lines.length > 1) {
       return (
         <span className={className}>
@@ -272,12 +262,11 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
         </span>
       );
     }
-    return <span className={className}>{cleanText}</span>;
+    return <span className={className}>{plainText}</span>;
   }
 
   // Réinitialiser les regex
   blockMathRegex.lastIndex = 0;
-  inlineMathRegex.lastIndex = 0;
 
   const parts: (string | { formula: string; isBlock: boolean })[] = [];
   let processedIndex = 0;
@@ -296,23 +285,16 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
     });
   }
 
-  // Traiter les formules inline ($...$)
-  inlineMathRegex.lastIndex = 0;
-  while ((match = inlineMathRegex.exec(cleanText)) !== null) {
-    // Vérifier que cette formule inline n'est pas déjà couverte par une formule en bloc
+  // Traiter les formules inline ($...$) — ignore devises et phrases entre $
+  for (const inlineMatch of findInlineMathMatches(cleanText)) {
     const isInBlock = allMatches.some(
-      bm => match!.index >= bm.start && match!.index < bm.end
+      (bm) => inlineMatch.start >= bm.start && inlineMatch.start < bm.end
     );
     if (!isInBlock) {
-      // Déséchapper + collapser les retours ligne internes (formule atomique)
-      let formula = match[1]
-        .replace(/\s*\n\s*/g, ' ')
-        .trim()
-        .replace(/\\\\/g, '\\');
       allMatches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        formula: formula,
+        start: inlineMatch.start,
+        end: inlineMatch.end,
+        formula: inlineMatch.formula.replace(/\\\\/g, '\\'),
         isBlock: false,
       });
     }
@@ -327,7 +309,7 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
     if (mathMatch.start > processedIndex) {
       const beforeText = cleanText.substring(processedIndex, mathMatch.start);
       if (beforeText) {
-        parts.push(beforeText);
+        parts.push(currencyGuard.restore(beforeText));
       }
     }
 
@@ -344,13 +326,13 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
   if (processedIndex < cleanText.length) {
     const remainingText = cleanText.substring(processedIndex);
     if (remainingText) {
-      parts.push(remainingText);
+      parts.push(currencyGuard.restore(remainingText));
     }
   }
 
   // Si aucune formule trouvée, retourner le texte nettoyé
   if (parts.length === 0) {
-    return <span className={className}>{cleanText}</span>;
+    return <span className={className}>{currencyGuard.restore(cleanText)}</span>;
   }
 
   // Rendre les parties : formule = unité insécable (retour ligne AVANT, pas au milieu)

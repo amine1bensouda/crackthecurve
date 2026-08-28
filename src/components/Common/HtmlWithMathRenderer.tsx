@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import MathRenderer from '@/components/Quiz/MathRenderer';
 import { latexInDoubleDollarsShouldUseBlockDisplay } from '@/lib/utils';
+import { findInlineMathMatches, protectCurrencyAmounts } from '@/lib/latex-parse';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 
 interface HtmlWithMathRendererProps {
@@ -45,6 +46,9 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
     // Déséchapper les backslashes échappés
     remainingHtml = remainingHtml.replace(/\\\\/g, '\\');
 
+    const currencyGuard = protectCurrencyAmounts(remainingHtml);
+    remainingHtml = currencyGuard.text;
+
     // Quill met chaque paragraphe dans <p>. Le découpage LaTeX produit alors des
     // morceaux qui se terminent par un <p> implicite/refermé par le navigateur →
     // saut de ligne avant/après la formule alors que l'éditeur est une seule ligne.
@@ -54,7 +58,6 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
       .replace(/<\/p>/gi, '');
 
     const blockMathRegex = /\$\$([\s\S]*?)\$\$/g;
-    const inlineMathRegex = /(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g;
 
     const mathMatches: Array<{ start: number; end: number; formula: string; isBlock: boolean }> = [];
     let match;
@@ -74,25 +77,21 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
       });
     }
 
-    inlineMathRegex.lastIndex = 0;
-    while ((match = inlineMathRegex.exec(remainingHtml)) !== null) {
-      const isInBlock = mathMatches.some((m) => match!.index >= m.start && match!.index < m.end);
+    for (const inlineMatch of findInlineMathMatches(remainingHtml)) {
+      const isInBlock = mathMatches.some(
+        (m) => inlineMatch.start >= m.start && inlineMatch.start < m.end
+      );
       if (!isInBlock) {
-        const beforeMatch = remainingHtml.substring(0, match.index);
+        const beforeMatch = remainingHtml.substring(0, inlineMatch.start);
         const lastOpenTag = beforeMatch.lastIndexOf('<');
         const lastCloseTag = beforeMatch.lastIndexOf('>');
         const isInTag = lastOpenTag > lastCloseTag;
 
         if (!isInTag) {
           mathMatches.push({
-            start: match.index,
-            end: match.index + match[0].length,
-            formula: match[1]
-              .replace(/<br\s*\/?>/gi, ' ')
-              .replace(/<\/?p[^>]*>/gi, ' ')
-              .replace(/<[^>]+>/g, '')
-              .replace(/\s*\n\s*/g, ' ')
-              .trim(),
+            start: inlineMatch.start,
+            end: inlineMatch.end,
+            formula: inlineMatch.formula,
             isBlock: false,
           });
         }
@@ -110,6 +109,7 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
           imagePlaceholders.forEach((img, idx) => {
             restoredHtml = restoredHtml.replace(`__IMAGE_${idx}__`, img);
           });
+          restoredHtml = currencyGuard.restore(restoredHtml);
           newParts.push({ type: 'html', content: restoredHtml });
         }
       }
@@ -131,6 +131,7 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
         imagePlaceholders.forEach((img, idx) => {
           restoredHtml = restoredHtml.replace(`__IMAGE_${idx}__`, img);
         });
+        restoredHtml = currencyGuard.restore(restoredHtml);
         newParts.push({ type: 'html', content: restoredHtml });
       }
     }
@@ -140,6 +141,7 @@ export default function HtmlWithMathRenderer({ html, className = '' }: HtmlWithM
       imagePlaceholders.forEach((img, idx) => {
         restoredHtml = restoredHtml.replace(`__IMAGE_${idx}__`, img);
       });
+      restoredHtml = currencyGuard.restore(restoredHtml);
       newParts.push({ type: 'html', content: restoredHtml });
     }
 
