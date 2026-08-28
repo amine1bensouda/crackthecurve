@@ -1,9 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import type { Question as QuestionType } from '@/lib/types';
 import MathRenderer from './MathRenderer';
 import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
+import QuizImage from '@/components/Common/QuizImage';
+import { normalizeMediaUrl } from '@/lib/media-url';
 
 interface QuestionProps {
   question: QuestionType;
@@ -155,8 +156,8 @@ export default function Question({
         {/* Média (image) si présent */}
         {mediaUrl && (
           <div className="relative w-full h-72 mb-6 rounded-[10px] overflow-hidden shadow-[0_2px_10px_rgba(44,60,94,0.04)] group">
-            <Image
-              src={mediaUrl}
+            <QuizImage
+              src={normalizeMediaUrl(mediaUrl) || mediaUrl}
               alt={questionText}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -307,7 +308,7 @@ export default function Question({
                       <div className="mb-3 rounded-[10px] overflow-hidden border border-[#eae2d2] bg-[#f8f2e7] max-w-sm max-h-40 w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={answer.imageUrl}
+                          src={normalizeMediaUrl(answer.imageUrl) || answer.imageUrl}
                           alt=""
                           className="object-contain w-full h-32 sm:h-40"
                         />

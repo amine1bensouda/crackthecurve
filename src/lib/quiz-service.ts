@@ -1,5 +1,6 @@
 import { prisma } from './db';
 import type { Quiz, Question, Category } from './types';
+import { normalizeMediaUrl, normalizeUploadUrlsInHtml } from './media-url';
 import { INDEXABLE_QUIZ_WHERE, PUBLISHED_QUIZ_WHERE } from './quiz-filters';
 
 /**
@@ -319,18 +320,18 @@ export function convertPrismaQuizToQuiz(prismaQuiz: any): Quiz {
 
     return {
       id: q.id,
-      texte_question: q.text || '',
+      texte_question: normalizeUploadUrlsInHtml(q.text || ''),
       type_question: typeQuestion,
-      explication: q.explanation || '',
+      explication: normalizeUploadUrlsInHtml(q.explanation || ''),
       points: q.points,
       temps_limite: q.timeLimit || undefined,
       reponses: answers
         .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
         .map((a: any) => ({
-          texte: a.text || '',
+          texte: normalizeUploadUrlsInHtml(a.text || ''),
           correcte: a.isCorrect || false,
-          explication: a.explanation || '',
-          imageUrl: a.imageUrl && String(a.imageUrl).trim() ? a.imageUrl : undefined,
+          explication: normalizeUploadUrlsInHtml(a.explanation || ''),
+          imageUrl: normalizeMediaUrl(a.imageUrl),
         })),
     };
   });
@@ -348,15 +349,15 @@ export function convertPrismaQuizToQuiz(prismaQuiz: any): Quiz {
       rendered: prismaQuiz.title,
     },
     content: {
-      rendered: prismaQuiz.description || '',
+      rendered: normalizeUploadUrlsInHtml(prismaQuiz.description || ''),
     },
     excerpt: {
-      rendered: prismaQuiz.excerpt || '',
+      rendered: normalizeUploadUrlsInHtml(prismaQuiz.excerpt || ''),
     },
     metaTitle: prismaQuiz.metaTitle || null,
     metaDescription: prismaQuiz.metaDescription || null,
     featured_media: 0,
-    featured_media_url: prismaQuiz.featuredImageUrl || prismaQuiz.featuredImage || undefined,
+    featured_media_url: normalizeMediaUrl(prismaQuiz.featuredImageUrl || prismaQuiz.featuredImage),
     acf: {
       duree_estimee: prismaQuiz.duration > 0 ? prismaQuiz.duration : undefined,
       niveau_difficulte: (prismaQuiz.difficulty != null && String(prismaQuiz.difficulty).trim()) ? prismaQuiz.difficulty : undefined,

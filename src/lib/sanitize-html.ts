@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/constants';
+import { normalizeUploadUrlsInHtml } from '@/lib/media-url';
 
 const blockedElements = /<(script|style|iframe|object|embed|form|input|button|textarea|select|option|meta|link|base|svg|math)\b[^>]*>[\s\S]*?<\/\1\s*>|<(script|style|iframe|object|embed|form|input|button|textarea|select|option|meta|link|base|svg|math)\b[^>]*\/?>/gi;
 const eventHandler = /\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
@@ -32,7 +33,7 @@ export function normalizeSiteUrls(html: string): string {
 /** Sanitization boundary used for every piece of CMS/user-authored HTML. */
 export function sanitizeHtml(html: string): string {
   if (!html) return '';
-  let clean = normalizeSiteUrls(html);
+  let clean = normalizeUploadUrlsInHtml(normalizeSiteUrls(html));
   let previous: string;
   do {
     previous = clean;

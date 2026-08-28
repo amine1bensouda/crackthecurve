@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Quiz } from '@/lib/types';
+import QuizImage from '@/components/Common/QuizImage';
 import { DIFFICULTY_LEVELS } from '@/lib/constants';
 import { formatDuration, stripHtml, categoryToEnglish } from '@/lib/utils';
 
@@ -40,7 +40,7 @@ export default function QuizCard({ quiz, index = 0 }: QuizCardProps) {
     >
       {quiz.featured_media_url && (
         <div className="relative h-48 w-full overflow-hidden bg-[#f8f2e7]">
-          <Image
+          <QuizImage
             src={quiz.featured_media_url}
             alt={quiz.title.rendered}
             fill

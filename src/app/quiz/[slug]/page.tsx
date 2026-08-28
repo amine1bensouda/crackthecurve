@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { getQuizBySlug } from '@/lib/wordpress';
 import QuizPlayer from '@/components/Quiz/QuizPlayer';
+import QuizImage from '@/components/Common/QuizImage';
 import CommentsSection from '@/components/Comments/CommentsSection';
 import QuizSchema from '@/components/SEO/QuizSchema';
 import QuizQuestionsSeoContent from '@/components/SEO/QuizQuestionsSeoContent';
@@ -166,7 +166,7 @@ export default async function QuizPage({ params }: PageProps) {
           <div className="mb-12">
             {quiz.featured_media_url && (
               <div className="relative mb-8 h-64 w-full overflow-hidden rounded-[10px] md:h-80">
-                <Image
+                <QuizImage
                   src={quiz.featured_media_url}
                   alt={title}
                   fill

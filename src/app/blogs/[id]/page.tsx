@@ -5,6 +5,7 @@ import { getAllBlogPostsFromDB, getBlogPostFromDB } from '@/lib/blog-data';
 import ArticleSchema from '@/components/SEO/ArticleSchema';
 import { resolveSeoDescription, resolveSeoTitle } from '@/lib/seo-meta';
 import { SITE_NAME, SITE_URL } from '@/lib/constants';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 export const revalidate = 900;
 
@@ -93,7 +94,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <article className="container mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <div
           className="prose prose-lg max-w-none text-[#2b3244] prose-headings:font-display prose-headings:text-[#2c3c5e] prose-a:text-[#3f7267]"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
         />
 
         {post.ctaLink && post.ctaText ? (

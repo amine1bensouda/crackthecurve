@@ -40,8 +40,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
-    const url = baseUrl ? `${baseUrl}/uploads/${filename}` : `/uploads/${filename}`;
+    const url = `/uploads/${filename}`;
     return NextResponse.json({ url });
   } catch (error: unknown) {
     console.error('Upload image error:', error);

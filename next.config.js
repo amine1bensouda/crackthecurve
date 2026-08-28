@@ -24,6 +24,18 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'theschoolofmathematics.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.theschoolofmathematics.com',
+      },
+      {
+        protocol: 'http',
+        hostname: '**.theschoolofmathematics.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'picsum.photos',
       },
       {
