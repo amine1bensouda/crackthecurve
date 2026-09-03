@@ -31,21 +31,35 @@ export default function RichTextEditor({
   const [localValue, setLocalValue] = useState(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const quillRef = useRef<any>(null);
+  const uploadingRef = useRef(false);
 
   useEffect(() => {
+    // Ne pas écraser le contenu pendant un upload / édition locale récente
+    if (uploadingRef.current) return;
     setLocalValue(value);
   }, [value]);
 
-  const handleChange = (newValue: string) => {
-    setLocalValue(newValue);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => onChange(newValue), 300);
-  };
+  const handleChange = useCallback(
+    (newValue: string) => {
+      setLocalValue(newValue);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => onChange(newValue), 300);
+    },
+    [onChange]
+  );
 
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
+  }, []);
+
+  const getEditor = useCallback(() => {
+    const rq = quillRef.current;
+    if (!rq) return null;
+    if (typeof rq.getEditor === 'function') return rq.getEditor();
+    if (rq.editor) return rq.editor;
+    return null;
   }, []);
 
   const imageHandler = useCallback(() => {
@@ -58,31 +72,81 @@ export default function RichTextEditor({
       const file = input.files?.[0];
       if (!file) return;
 
+      const editor = getEditor();
+      const range = editor?.getSelection?.(true);
+      const index = range?.index ?? editor?.getLength?.() ?? 0;
+      const previewUrl = URL.createObjectURL(file);
+
+      uploadingRef.current = true;
+
       try {
+        // Afficher tout de suite un aperçu (évite l'icône cassée pendant l'upload)
+        if (editor) {
+          editor.insertEmbed(index, 'image', previewUrl);
+          editor.setSelection(index + 1);
+        }
+
         const formData = new FormData();
         formData.append('image', file);
         const res = await fetch('/api/admin/upload/image', {
           method: 'POST',
           body: formData,
+          credentials: 'include',
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.url) {
+          // Retirer l'aperçu en cas d'échec
+          if (editor?.root) {
+            const broken = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
+            broken.forEach((img: Element) => img.remove());
+            handleChange(editor.root.innerHTML);
+          }
           alert(data.error || 'Image upload failed');
           return;
         }
 
-        const editor = quillRef.current?.getEditor?.();
-        if (!editor) return;
-        const range = editor.getSelection(true);
-        const index = range?.index ?? editor.getLength();
-        editor.insertEmbed(index, 'image', data.url);
-        editor.setSelection(index + 1);
+        if (editor?.root) {
+          const imgs = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
+          imgs.forEach((img: Element) => {
+            (img as HTMLImageElement).src = data.url;
+          });
+          const html = editor.root.innerHTML;
+          setLocalValue(html);
+          onChange(html);
+        } else {
+          // Fallback si le ref Quill n'est pas prêt
+          const imgTag = `<p><img src="${data.url}" alt="" /></p>`;
+          const next = `${localValue || ''}${imgTag}`;
+          setLocalValue(next);
+          onChange(next);
+        }
       } catch (error) {
         console.error('Image upload error:', error);
+        if (editor?.root) {
+          const broken = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
+          broken.forEach((img: Element) => img.remove());
+          handleChange(editor.root.innerHTML);
+        }
         alert('Image upload failed');
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+        uploadingRef.current = false;
       }
     };
-  }, []);
+  }, [getEditor, handleChange, localValue, onChange]);
+
+  // Attacher le handler image après le montage (plus fiable que modules.handlers seul)
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const editor = getEditor();
+      if (!editor) return;
+      const toolbar = editor.getModule?.('toolbar');
+      if (toolbar?.addHandler) {
+        toolbar.addHandler('image', imageHandler);
+      }
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [getEditor, imageHandler, compact]);
 
   const modules = useMemo(
     () => ({
@@ -164,6 +228,7 @@ export default function RichTextEditor({
         .rich-text-editor .ql-editor img {
           max-width: 100%;
           height: auto;
+          display: inline-block;
         }
       `}</style>
       <ReactQuill

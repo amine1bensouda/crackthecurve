@@ -24,7 +24,9 @@ export default function QuizImage({
 }: QuizImageProps) {
   const normalized = normalizeMediaUrl(src) || src;
   const useNative =
-    normalized.startsWith('data:') || normalized.startsWith('/uploads/');
+    normalized.startsWith('data:') ||
+    normalized.startsWith('/uploads/') ||
+    normalized.startsWith('/api/uploads/');
 
   if (useNative) {
     if (fill) {
