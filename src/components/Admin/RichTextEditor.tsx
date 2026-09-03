@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import EditorErrorBoundary from './EditorErrorBoundary';
 
 const ReactQuill = dynamic(
   async () => {
@@ -27,7 +28,24 @@ interface RichTextEditorProps {
   compact?: boolean;
 }
 
-export default function RichTextEditor({
+function PlainTextFallback({
+  value,
+  onChange,
+  placeholder,
+  compact,
+}: RichTextEditorProps) {
+  return (
+    <textarea
+      value={typeof value === 'string' ? value : ''}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={compact ? 3 : 6}
+      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+    />
+  );
+}
+
+function QuillEditorInner({
   value,
   onChange,
   placeholder = 'Enter text...',
@@ -36,6 +54,7 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const safeValue = typeof value === 'string' ? value : value == null ? '' : String(value);
   const [localValue, setLocalValue] = useState(safeValue);
+  const [usePlain, setUsePlain] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quillRef = useRef<any>(null);
 
@@ -154,6 +173,17 @@ export default function RichTextEditor({
     []
   );
 
+  if (usePlain) {
+    return (
+      <PlainTextFallback
+        value={localValue}
+        onChange={handleChange}
+        placeholder={placeholder}
+        compact={compact}
+      />
+    );
+  }
+
   const minHeight = compact ? 100 : 200;
 
   return (
@@ -190,15 +220,44 @@ export default function RichTextEditor({
       `,
         }}
       />
-      <ReactQuill
-        forwardedRef={quillRef}
-        theme="snow"
-        value={localValue}
-        onChange={handleChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder}
-      />
+      <EditorErrorBoundary
+        onError={() => setUsePlain(true)}
+        fallback={
+          <PlainTextFallback
+            value={localValue}
+            onChange={handleChange}
+            placeholder={placeholder}
+            compact={compact}
+          />
+        }
+      >
+        <ReactQuill
+          forwardedRef={quillRef}
+          theme="snow"
+          value={localValue}
+          onChange={handleChange}
+          modules={modules}
+          formats={formats}
+          placeholder={placeholder}
+        />
+      </EditorErrorBoundary>
     </div>
+  );
+}
+
+export default function RichTextEditor(props: RichTextEditorProps) {
+  return (
+    <EditorErrorBoundary
+      fallback={
+        <PlainTextFallback
+          value={typeof props.value === 'string' ? props.value : ''}
+          onChange={props.onChange}
+          placeholder={props.placeholder}
+          compact={props.compact}
+        />
+      }
+    >
+      <QuillEditorInner {...props} />
+    </EditorErrorBoundary>
   );
 }

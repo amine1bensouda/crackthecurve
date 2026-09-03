@@ -106,7 +106,7 @@ export default function QuestionEditor({
           className="flex-1 text-left min-w-0"
         >
           <div className="flex items-center gap-2">
-            <span className="text-gray-500 text-sm">{expanded ? '▼' : '▶'}</span>
+            <span className="text-gray-500 text-sm font-mono">{expanded ? '[-]' : '[+]'}</span>
             <h3 className="text-lg font-semibold text-gray-900">Question {index + 1}</h3>
             <span className="text-xs text-gray-500">
               {localQuestion.answers?.length || 0} answer(s)

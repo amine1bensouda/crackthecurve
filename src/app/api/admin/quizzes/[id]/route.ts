@@ -8,6 +8,94 @@ import { generateSlug } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
+const quizInclude = {
+  module: {
+    include: {
+      course: true,
+    },
+  },
+  questions: {
+    include: {
+      answers: true,
+    },
+    orderBy: {
+      order: 'asc' as const,
+    },
+  },
+};
+
+/**
+ * GET /api/admin/quizzes/[id]
+ * Charge un quiz complet pour l'édition admin (évite un payload RSC énorme).
+ */
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const decodedId = decodeURIComponent(params.id);
+    let quiz = await prisma.quiz.findUnique({
+      where: { id: decodedId },
+      include: quizInclude,
+    });
+    if (!quiz) {
+      quiz = await prisma.quiz.findUnique({
+        where: { slug: decodedId },
+        include: quizInclude,
+      });
+    }
+    if (!quiz) {
+      return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      id: quiz.id,
+      title: quiz.title,
+      slug: quiz.slug,
+      moduleId: quiz.moduleId || '',
+      description: quiz.description || '',
+      excerpt: quiz.excerpt || '',
+      metaTitle: quiz.metaTitle || '',
+      metaDescription: quiz.metaDescription || '',
+      duration: quiz.duration,
+      difficulty: quiz.difficulty ?? '',
+      passingGrade: quiz.passingGrade,
+      randomizeOrder: quiz.randomizeOrder,
+      maxQuestions: quiz.maxQuestions || undefined,
+      featuredImageUrl: quiz.featuredImageUrl || '',
+      sourceQuizId: quiz.sourceQuizId,
+      isEnabled: quiz.isEnabled,
+      lockLocalEdits: quiz.lockLocalEdits,
+      sourceSyncedAt: quiz.sourceSyncedAt?.toISOString() ?? null,
+      questions: quiz.questions.map((q) => ({
+        id: q.id,
+        text: q.text,
+        type: q.type,
+        points: q.points,
+        explanation: q.explanation || '',
+        timeLimit: q.timeLimit || undefined,
+        order: q.order,
+        answers: q.answers
+          .sort((a, b) => a.order - b.order)
+          .map((a) => ({
+            id: a.id,
+            text: a.text,
+            isCorrect: a.isCorrect,
+            explanation: a.explanation || '',
+            imageUrl: a.imageUrl || undefined,
+            order: a.order,
+          })),
+      })),
+    });
+  } catch (error: unknown) {
+    console.error('GET quiz error:', error);
+    return NextResponse.json(
+      { error: 'Failed to load quiz', details: error instanceof Error ? error.message : 'Unknown' },
+      { status: 500 }
+    );
+  }
+}
+
 /**
  * PUT /api/admin/quizzes/[id]
  * Met à jour un quiz existant
