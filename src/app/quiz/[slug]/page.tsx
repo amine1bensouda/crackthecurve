@@ -114,14 +114,18 @@ export default async function QuizPage({ params }: PageProps) {
     slug: quiz.slug || decodedSlug,
   });
   const description = quiz.excerpt?.rendered || '';
-  const intro = buildQuizIntro({
-    title,
-    category: quiz.acf?.categorie,
-    difficulty: quiz.acf?.niveau_difficulte,
-    questionCount: quiz.acf?.nombre_questions,
-    durationMinutes: quiz.acf?.duree_estimee,
-    existingExcerptPlain: stripHtml(description),
-  });
+  // Si l'admin a renseigné une meta description, l'afficher en intro (c'est le texte le plus pertinent)
+  const seoDescForIntro = (quiz.metaDescription || '').trim();
+  const intro = seoDescForIntro
+    ? seoDescForIntro
+    : buildQuizIntro({
+        title,
+        category: quiz.acf?.categorie,
+        difficulty: quiz.acf?.niveau_difficulte,
+        questionCount: quiz.acf?.nombre_questions,
+        durationMinutes: quiz.acf?.duree_estimee,
+        existingExcerptPlain: stripHtml(description),
+      });
   const faqs = buildQuizFaqs({
     title,
     category: quiz.acf?.categorie,
