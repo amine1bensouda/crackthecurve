@@ -8,13 +8,15 @@ export function normalizeMediaUrl(url?: string | null): string | undefined {
 
   const value = String(url).trim();
   if (value.startsWith('data:image')) return value;
-  if (value.startsWith('/uploads/')) return value;
+  if (value.startsWith('/uploads/') || value.startsWith('/api/uploads/')) return value;
 
-  const absoluteMatch = value.match(/^(?:https?:)?\/\/[^/]+(\/uploads\/[^\s"'<>?#]+)/i);
+  const absoluteMatch = value.match(
+    /^(?:https?:)?\/\/[^/]+(\/(?:api\/)?uploads\/[^\s"'<>?#]+)/i
+  );
   if (absoluteMatch) return absoluteMatch[1];
 
-  if (value.startsWith('//') && value.includes('/uploads/')) {
-    const protocolRelative = value.match(/(\/uploads\/[^\s"'<>?#]+)/i);
+  if (value.startsWith('//') && /\/uploads\//i.test(value)) {
+    const protocolRelative = value.match(/(\/(?:api\/)?uploads\/[^\s"'<>?#]+)/i);
     if (protocolRelative) return protocolRelative[1];
   }
 
@@ -26,7 +28,7 @@ export function normalizeUploadUrlsInHtml(html: string): string {
   if (!html || !html.includes('uploads')) return html;
 
   return html.replace(
-    /(\s(?:src|href)\s*=\s*(["']))(?:https?:)?\/\/[^"']+?(\/uploads\/[^"']+)\2/gi,
+    /(\s(?:src|href)\s*=\s*(["']))(?:https?:)?\/\/[^"']+?(\/(?:api\/)?uploads\/[^"']+)\2/gi,
     '$1$3$2'
   );
 }
