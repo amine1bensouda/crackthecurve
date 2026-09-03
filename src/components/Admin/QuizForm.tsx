@@ -640,6 +640,7 @@ export default function QuizForm({ initialData }: QuizFormProps) {
                 key={question.id || index}
                 question={question}
                 index={index}
+                defaultExpanded={index === 0}
                 onUpdate={(q) => handleUpdateQuestion(index, q)}
                 onDelete={() => handleDeleteQuestion(index)}
               />

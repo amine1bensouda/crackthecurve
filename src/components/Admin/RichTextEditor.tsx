@@ -9,7 +9,14 @@ const ReactQuill = dynamic(
     // eslint-disable-next-line react/display-name
     return ({ forwardedRef, ...props }: any) => <RQ ref={forwardedRef} {...props} />;
   },
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[100px] rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-400">
+        Loading editor…
+      </div>
+    ),
+  }
 );
 
 interface RichTextEditorProps {
@@ -17,7 +24,6 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
-  /** Hauteur réduite pour réponses / explications */
   compact?: boolean;
 }
 
@@ -28,15 +34,13 @@ export default function RichTextEditor({
   className = '',
   compact = false,
 }: RichTextEditorProps) {
-  const [localValue, setLocalValue] = useState(value);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const safeValue = typeof value === 'string' ? value : value == null ? '' : String(value);
+  const [localValue, setLocalValue] = useState(safeValue);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quillRef = useRef<any>(null);
-  const uploadingRef = useRef(false);
 
   useEffect(() => {
-    // Ne pas écraser le contenu pendant un upload / édition locale récente
-    if (uploadingRef.current) return;
-    setLocalValue(value);
+    setLocalValue(typeof value === 'string' ? value : value == null ? '' : String(value));
   }, [value]);
 
   const handleChange = useCallback(
@@ -54,14 +58,6 @@ export default function RichTextEditor({
     };
   }, []);
 
-  const getEditor = useCallback(() => {
-    const rq = quillRef.current;
-    if (!rq) return null;
-    if (typeof rq.getEditor === 'function') return rq.getEditor();
-    if (rq.editor) return rq.editor;
-    return null;
-  }, []);
-
   const imageHandler = useCallback(() => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -72,20 +68,7 @@ export default function RichTextEditor({
       const file = input.files?.[0];
       if (!file) return;
 
-      const editor = getEditor();
-      const range = editor?.getSelection?.(true);
-      const index = range?.index ?? editor?.getLength?.() ?? 0;
-      const previewUrl = URL.createObjectURL(file);
-
-      uploadingRef.current = true;
-
       try {
-        // Afficher tout de suite un aperçu (évite l'icône cassée pendant l'upload)
-        if (editor) {
-          editor.insertEmbed(index, 'image', previewUrl);
-          editor.setSelection(index + 1);
-        }
-
         const formData = new FormData();
         formData.append('image', file);
         const res = await fetch('/api/admin/upload/image', {
@@ -94,59 +77,34 @@ export default function RichTextEditor({
           credentials: 'include',
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.url) {
-          // Retirer l'aperçu en cas d'échec
-          if (editor?.root) {
-            const broken = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
-            broken.forEach((img: Element) => img.remove());
-            handleChange(editor.root.innerHTML);
-          }
-          alert(data.error || 'Image upload failed');
+        if (!res.ok || !(data as { url?: string }).url) {
+          alert((data as { error?: string }).error || 'Image upload failed');
           return;
         }
+        const url = (data as { url: string }).url;
 
-        if (editor?.root) {
-          const imgs = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
-          imgs.forEach((img: Element) => {
-            (img as HTMLImageElement).src = data.url;
-          });
-          const html = editor.root.innerHTML;
-          setLocalValue(html);
-          onChange(html);
+        const editor = quillRef.current?.getEditor?.() || quillRef.current?.editor || null;
+        if (editor) {
+          const range = editor.getSelection(true);
+          const index = range?.index ?? editor.getLength();
+          editor.insertEmbed(index, 'image', url);
+          editor.setSelection(index + 1);
+          const html = editor.root?.innerHTML;
+          if (typeof html === 'string') {
+            setLocalValue(html);
+            onChange(html);
+          }
         } else {
-          // Fallback si le ref Quill n'est pas prêt
-          const imgTag = `<p><img src="${data.url}" alt="" /></p>`;
-          const next = `${localValue || ''}${imgTag}`;
+          const next = `${localValue || ''}<p><img src="${url}" alt="" /></p>`;
           setLocalValue(next);
           onChange(next);
         }
       } catch (error) {
         console.error('Image upload error:', error);
-        if (editor?.root) {
-          const broken = editor.root.querySelectorAll(`img[src="${previewUrl}"]`);
-          broken.forEach((img: Element) => img.remove());
-          handleChange(editor.root.innerHTML);
-        }
         alert('Image upload failed');
-      } finally {
-        URL.revokeObjectURL(previewUrl);
-        uploadingRef.current = false;
       }
     };
-  }, [getEditor, handleChange, localValue, onChange]);
-
-  // Attacher le handler image après le montage (plus fiable que modules.handlers seul)
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const editor = getEditor();
-      if (!editor) return;
-      const toolbar = editor.getModule?.('toolbar');
-      if (toolbar?.addHandler) {
-        toolbar.addHandler('image', imageHandler);
-      }
-    }, 100);
-    return () => window.clearTimeout(timer);
-  }, [getEditor, imageHandler, compact]);
+  }, [localValue, onChange]);
 
   const modules = useMemo(
     () => ({
@@ -173,41 +131,40 @@ export default function RichTextEditor({
     [imageHandler]
   );
 
-  const formats = [
-    'header',
-    'font',
-    'size',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'blockquote',
-    'list',
-    'bullet',
-    'indent',
-    'color',
-    'background',
-    'align',
-    'link',
-    'image',
-    'video',
-  ];
+  const formats = useMemo(
+    () => [
+      'header',
+      'font',
+      'size',
+      'bold',
+      'italic',
+      'underline',
+      'strike',
+      'blockquote',
+      'list',
+      'bullet',
+      'indent',
+      'color',
+      'background',
+      'align',
+      'link',
+      'image',
+      'video',
+    ],
+    []
+  );
 
   const minHeight = compact ? 100 : 200;
+
   return (
     <div className={`rich-text-editor ${compact ? 'rich-text-editor-compact' : ''} ${className}`}>
-      <style jsx global>{`
-        .rich-text-editor .ql-container {
-          min-height: ${minHeight}px;
-          font-size: 14px;
-        }
-        .rich-text-editor .ql-editor {
-          min-height: ${minHeight}px;
-        }
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .rich-text-editor .ql-container { min-height: ${minHeight}px; font-size: 14px; }
+        .rich-text-editor .ql-editor { min-height: ${minHeight}px; }
         .rich-text-editor-compact .ql-container,
-        .rich-text-editor-compact .ql-editor {
-          min-height: 100px;
-        }
+        .rich-text-editor-compact .ql-editor { min-height: 100px; }
         .rich-text-editor .ql-toolbar {
           border-top: 1px solid #d1d5db;
           border-left: 1px solid #d1d5db;
@@ -230,7 +187,9 @@ export default function RichTextEditor({
           height: auto;
           display: inline-block;
         }
-      `}</style>
+      `,
+        }}
+      />
       <ReactQuill
         forwardedRef={quillRef}
         theme="snow"
