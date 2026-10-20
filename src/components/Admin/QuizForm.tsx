@@ -6,7 +6,7 @@ import QuestionEditor from './QuestionEditor';
 import RichTextEditor from './RichTextEditor';
 import ImageUploadField from './ImageUploadField';
 import SeoFields from './SeoFields';
-import { stripHtml } from '@/lib/utils';
+import { restoreQuestionMarkup, stripHtml } from '@/lib/utils';
 import { replaceBase64ImagesInHtml, resolveImageUrl } from '@/lib/replace-base64-images';
 
 interface Course {
@@ -67,6 +67,19 @@ interface QuizFormProps {
   initialData?: QuizFormData;
 }
 
+function normalizeQuestion(q: Question): Question {
+  return {
+    ...q,
+    text: restoreQuestionMarkup(q.text || ''),
+    explanation: restoreQuestionMarkup(q.explanation || ''),
+    answers: (q.answers || []).map((a) => ({
+      ...a,
+      text: restoreQuestionMarkup(a.text || ''),
+      explanation: restoreQuestionMarkup(a.explanation || ''),
+    })),
+  };
+}
+
 export default function QuizForm({ initialData }: QuizFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -76,6 +89,8 @@ export default function QuizForm({ initialData }: QuizFormProps) {
   const [showCreateModule, setShowCreateModule] = useState(false);
   const [newCourse, setNewCourse] = useState({ title: '', slug: '', description: '' });
   const [newModule, setNewModule] = useState({ title: '', slug: '', courseId: '', description: '', order: 0 });
+  const [questionQuery, setQuestionQuery] = useState('');
+  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState<QuizFormData>({
     title: '',
     slug: '',
@@ -90,8 +105,8 @@ export default function QuizForm({ initialData }: QuizFormProps) {
     randomizeOrder: false,
     maxQuestions: undefined,
     featuredImageUrl: '',
-    questions: [],
     ...initialData,
+    questions: (initialData?.questions || []).map(normalizeQuestion),
   });
 
   useEffect(() => {
@@ -195,6 +210,7 @@ export default function QuizForm({ initialData }: QuizFormProps) {
   };
 
   const handleAddQuestion = () => {
+    const nextIndex = formData.questions.length;
     setFormData((prev) => ({
       ...prev,
       questions: [
@@ -212,6 +228,7 @@ export default function QuizForm({ initialData }: QuizFormProps) {
         },
       ],
     }));
+    setOpenQuestionIndex(nextIndex);
   };
 
   const handleUpdateQuestion = (index: number, question: Question) => {
@@ -232,6 +249,12 @@ export default function QuizForm({ initialData }: QuizFormProps) {
       ...prev,
       questions: prev.questions.filter((_, i) => i !== index).map((q, i) => ({ ...q, order: i })),
     }));
+    setOpenQuestionIndex((current) => {
+      if (current == null) return null;
+      if (current === index) return null;
+      if (current > index) return current - 1;
+      return current;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -618,8 +641,15 @@ export default function QuizForm({ initialData }: QuizFormProps) {
 
       {/* Questions */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Questions</h2>
+        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Questions
+            {formData.questions.length > 0 ? (
+              <span className="ml-2 text-base font-medium text-gray-500">
+                ({formData.questions.length})
+              </span>
+            ) : null}
+          </h2>
           <button
             type="button"
             onClick={handleAddQuestion}
@@ -631,20 +661,68 @@ export default function QuizForm({ initialData }: QuizFormProps) {
 
         {formData.questions.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p>No questions. Click "Add Question" to get started.</p>
+            <p>No questions. Click &quot;Add Question&quot; to get started.</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {formData.questions.map((question, index) => (
-              <QuestionEditor
-                key={question.id || index}
-                question={question}
-                index={index}
-                defaultExpanded={false}
-                onUpdate={(q) => handleUpdateQuestion(index, q)}
-                onDelete={() => handleDeleteQuestion(index)}
-              />
-            ))}
+          <div className="space-y-4">
+            <input
+              type="search"
+              value={questionQuery}
+              onChange={(e) => setQuestionQuery(e.target.value)}
+              placeholder="Rechercher une question (texte, formule…)"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+            />
+            {formData.questions.length > 6 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {formData.questions.map((_, index) => (
+                  <button
+                    key={`jump-${index}`}
+                    type="button"
+                    onClick={() => {
+                      setOpenQuestionIndex(index);
+                      document
+                        .getElementById(`admin-question-${index}`)
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className={`min-w-[2rem] rounded-md px-2 py-1 text-xs font-medium ${
+                      openQuestionIndex === index
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <div className="space-y-4">
+              {formData.questions.map((question, index) => {
+                const matchesQuery =
+                  !questionQuery.trim() ||
+                  stripHtml(question.text || '')
+                    .toLowerCase()
+                    .includes(questionQuery.trim().toLowerCase()) ||
+                  question.answers.some((a) =>
+                    stripHtml(a.text || '')
+                      .toLowerCase()
+                      .includes(questionQuery.trim().toLowerCase())
+                  );
+                if (!matchesQuery) return null;
+                return (
+                  <QuestionEditor
+                    key={question.id || index}
+                    question={question}
+                    index={index}
+                    expanded={openQuestionIndex === index}
+                    onToggle={() =>
+                      setOpenQuestionIndex((current) => (current === index ? null : index))
+                    }
+                    onUpdate={(q) => handleUpdateQuestion(index, q)}
+                    onDelete={() => handleDeleteQuestion(index)}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import RichTextEditor from './RichTextEditor';
+import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
+import { restoreQuestionMarkup } from '@/lib/utils';
 
 interface Answer {
   id?: string;
@@ -30,15 +32,9 @@ interface QuestionEditorProps {
   onDelete: () => void;
   /** Ouvert par défaut (ex. première question) */
   defaultExpanded?: boolean;
-}
-
-function stripPreview(html: string): string {
-  if (!html) return '';
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  /** Contrôle externe de l'accordéon (un seul ouvert à la fois) */
+  expanded?: boolean;
+  onToggle?: () => void;
 }
 
 export default function QuestionEditor({
@@ -47,8 +43,11 @@ export default function QuestionEditor({
   onUpdate,
   onDelete,
   defaultExpanded = false,
+  expanded: expandedProp,
+  onToggle,
 }: QuestionEditorProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+  const expanded = expandedProp ?? internalExpanded;
   const [localQuestion, setLocalQuestion] = useState<Question>(question);
   const questionIdRef = useRef<string | undefined>(question.id);
 
@@ -59,6 +58,14 @@ export default function QuestionEditor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.id]);
+
+  const toggleExpanded = () => {
+    if (onToggle) {
+      onToggle();
+      return;
+    }
+    setInternalExpanded((v) => !v);
+  };
 
   const updateQuestion = useCallback(
     (updates: Partial<Question>) => {
@@ -95,25 +102,41 @@ export default function QuestionEditor({
     updateQuestion({ answers: newAnswers.map((a, i) => ({ ...a, order: i })) });
   };
 
-  const preview = stripPreview(localQuestion.text).slice(0, 120);
+  const correctCount = localQuestion.answers?.filter((a) => a.isCorrect).length || 0;
+  const previewHtml = restoreQuestionMarkup(localQuestion.text || '');
 
   return (
-    <div className="border border-gray-300 rounded-lg bg-gray-50 overflow-hidden">
-      <div className="flex items-center justify-between gap-3 p-4">
+    <div
+      id={`admin-question-${index}`}
+      className="scroll-mt-4 border border-gray-300 rounded-lg bg-gray-50 overflow-hidden"
+    >
+      <div className="flex items-start justify-between gap-3 p-4">
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={toggleExpanded}
           className="flex-1 text-left min-w-0"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-gray-500 text-sm font-mono">{expanded ? '[-]' : '[+]'}</span>
             <h3 className="text-lg font-semibold text-gray-900">Question {index + 1}</h3>
             <span className="text-xs text-gray-500">
-              {localQuestion.answers?.length || 0} answer(s)
+              {localQuestion.answers?.length || 0} réponse(s)
             </span>
+            {correctCount > 0 ? (
+              <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                {correctCount} correcte{correctCount > 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                aucune bonne réponse
+              </span>
+            )}
+            <span className="text-xs text-gray-400">{localQuestion.points} pt</span>
           </div>
-          {!expanded && preview ? (
-            <p className="mt-1 text-sm text-gray-500 truncate pl-6">{preview}</p>
+          {!expanded && previewHtml ? (
+            <div className="mt-2 pl-6 text-sm text-gray-700 line-clamp-3 overflow-hidden [&_.katex]:text-[0.95em] [&_.katex-display]:my-0 [&_.katex-display]:inline [&_img]:max-h-16 [&_img]:w-auto">
+              <HtmlWithMathRenderer html={previewHtml} />
+            </div>
           ) : null}
         </button>
         <button
@@ -125,9 +148,43 @@ export default function QuestionEditor({
         </button>
       </div>
 
-      {/* Ne monter Quill que si la question est ouverte — évite le crash sur les longs quiz */}
       {expanded ? (
         <div className="space-y-4 px-4 pb-6 border-t border-gray-200 pt-4">
+          {previewHtml ? (
+            <div className="rounded-xl border border-indigo-100 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-2">
+                Aperçu (comme l&apos;élève le voit)
+              </p>
+              <HtmlWithMathRenderer
+                html={previewHtml}
+                className="text-gray-900 text-[15px] leading-relaxed"
+              />
+              {localQuestion.type !== 'text_input' && localQuestion.answers.length > 0 ? (
+                <ul className="mt-3 space-y-2">
+                  {localQuestion.answers.map((answer, answerIndex) => (
+                    <li
+                      key={answer.id || answerIndex}
+                      className={`rounded-lg border px-3 py-2 text-sm ${
+                        answer.isCorrect
+                          ? 'border-emerald-200 bg-emerald-50'
+                          : 'border-gray-200 bg-gray-50'
+                      }`}
+                    >
+                      <span className="mr-2 font-semibold text-gray-500">
+                        {String.fromCharCode(65 + answerIndex)}.
+                      </span>
+                      {answer.text ? (
+                        <HtmlWithMathRenderer html={restoreQuestionMarkup(answer.text)} />
+                      ) : (
+                        <span className="italic text-gray-400">Réponse vide</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
@@ -178,6 +235,7 @@ export default function QuestionEditor({
               value={localQuestion.text}
               onChange={(value) => updateQuestion({ text: value })}
               placeholder="Enter the question..."
+              showMathPreview
             />
           </div>
 
@@ -207,6 +265,7 @@ export default function QuestionEditor({
                           handleAnswerChange(answerIndex, { isCorrect: e.target.checked })
                         }
                         className="mt-2 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        title="Bonne réponse"
                       />
                       <div className="flex-1 space-y-2">
                         <label className="block text-sm font-medium text-gray-700">
@@ -217,6 +276,7 @@ export default function QuestionEditor({
                           onChange={(value) => handleAnswerChange(answerIndex, { text: value })}
                           placeholder="Answer text..."
                           compact
+                          showMathPreview
                         />
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -229,6 +289,7 @@ export default function QuestionEditor({
                             }
                             placeholder="Explanation (optional)..."
                             compact
+                            showMathPreview
                           />
                         </div>
                       </div>
@@ -287,6 +348,7 @@ export default function QuestionEditor({
                             }
                             placeholder="Expected answer (for reference)..."
                             compact
+                            showMathPreview
                           />
                           <label className="block text-sm font-medium text-gray-700">
                             Additional explanation (optional)
@@ -298,6 +360,7 @@ export default function QuestionEditor({
                             }
                             placeholder="Additional explanation (optional)..."
                             compact
+                            showMathPreview
                           />
                         </div>
                       </div>
@@ -316,6 +379,7 @@ export default function QuestionEditor({
               value={localQuestion.explanation}
               onChange={(value) => updateQuestion({ explanation: value })}
               placeholder="Enter general explanation of the question..."
+              showMathPreview
             />
           </div>
         </div>

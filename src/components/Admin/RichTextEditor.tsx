@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import EditorErrorBoundary from './EditorErrorBoundary';
+import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
+import { restoreQuestionMarkup } from '@/lib/utils';
 
 const ReactQuill = dynamic(
   async () => {
@@ -26,6 +28,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   compact?: boolean;
+  /** Affiche un aperçu KaTeX sous l'éditeur quand le texte contient du LaTeX */
+  showMathPreview?: boolean;
 }
 
 function PlainTextFallback({
@@ -40,7 +44,7 @@ function PlainTextFallback({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={compact ? 3 : 6}
-      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+      className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
     />
   );
 }
@@ -51,12 +55,17 @@ function QuillEditorInner({
   placeholder = 'Enter text...',
   className = '',
   compact = false,
+  showMathPreview = false,
 }: RichTextEditorProps) {
   const safeValue = typeof value === 'string' ? value : value == null ? '' : String(value);
   const [localValue, setLocalValue] = useState(safeValue);
   const [usePlain, setUsePlain] = useState(false);
+  const [mode, setMode] = useState<'visual' | 'source'>(() =>
+    safeValue.includes('$') ? 'source' : 'visual'
+  );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quillRef = useRef<any>(null);
+  const hasMath = /\$|\\begin\{|\\frac|\\text\{/.test(localValue || '');
 
   useEffect(() => {
     setLocalValue(typeof value === 'string' ? value : value == null ? '' : String(value));
@@ -173,24 +182,47 @@ function QuillEditorInner({
     []
   );
 
-  if (usePlain) {
-    return (
-      <PlainTextFallback
-        value={localValue}
-        onChange={handleChange}
-        placeholder={placeholder}
-        compact={compact}
-      />
-    );
-  }
-
   const minHeight = compact ? 100 : 200;
+  const showSource = usePlain || mode === 'source';
 
   return (
     <div className={`rich-text-editor ${compact ? 'rich-text-editor-compact' : ''} ${className}`}>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
+      <div className="mb-1 flex items-center justify-end gap-1">
+        <button
+          type="button"
+          onClick={() => setMode('visual')}
+          className={`rounded-md px-2 py-1 text-xs font-medium ${
+            !showSource
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Visuel
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('source')}
+          className={`rounded-md px-2 py-1 text-xs font-medium ${
+            showSource
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Source / LaTeX
+        </button>
+      </div>
+      {showSource ? (
+        <PlainTextFallback
+          value={localValue}
+          onChange={handleChange}
+          placeholder={placeholder}
+          compact={compact}
+        />
+      ) : (
+        <>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
         .rich-text-editor .ql-container { min-height: ${minHeight}px; font-size: 14px; }
         .rich-text-editor .ql-editor { min-height: ${minHeight}px; }
         .rich-text-editor-compact .ql-container,
@@ -218,29 +250,42 @@ function QuillEditorInner({
           display: inline-block;
         }
       `,
-        }}
-      />
-      <EditorErrorBoundary
-        onError={() => setUsePlain(true)}
-        fallback={
-          <PlainTextFallback
-            value={localValue}
-            onChange={handleChange}
-            placeholder={placeholder}
-            compact={compact}
+            }}
           />
-        }
-      >
-        <ReactQuill
-          forwardedRef={quillRef}
-          theme="snow"
-          value={localValue}
-          onChange={handleChange}
-          modules={modules}
-          formats={formats}
-          placeholder={placeholder}
-        />
-      </EditorErrorBoundary>
+          <EditorErrorBoundary
+            onError={() => setUsePlain(true)}
+            fallback={
+              <PlainTextFallback
+                value={localValue}
+                onChange={handleChange}
+                placeholder={placeholder}
+                compact={compact}
+              />
+            }
+          >
+            <ReactQuill
+              forwardedRef={quillRef}
+              theme="snow"
+              value={localValue}
+              onChange={handleChange}
+              modules={modules}
+              formats={formats}
+              placeholder={placeholder}
+            />
+          </EditorErrorBoundary>
+        </>
+      )}
+      {showMathPreview && hasMath ? (
+        <div className="mt-2 rounded-lg border border-indigo-100 bg-indigo-50/50 p-3">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-indigo-600">
+            Aperçu maths
+          </p>
+          <HtmlWithMathRenderer
+            html={restoreQuestionMarkup(localValue)}
+            className="text-sm text-gray-800 [&_.katex-display]:my-1"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

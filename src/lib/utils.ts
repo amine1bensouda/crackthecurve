@@ -170,17 +170,54 @@ export function latexInDoubleDollarsShouldUseBlockDisplay(formula: string): bool
 }
 
 /**
+ * Réinsère les espaces manquants autour des balises inline et des délimiteurs LaTeX.
+ * Import WordPress / Tutor : <em>word</em> collé au texte voisin → "Anangle", "Aroadwayis".
+ * Les formules $...$ / $$...$$ sont protégées pour ne pas casser `$$0.68$$`.
+ */
+export function restoreQuestionMarkup(html: string): string {
+  if (!html || typeof html !== 'string') return html;
+
+  const placeholders: string[] = [];
+  let out = html.replace(/\$\$[\s\S]*?\$\$/g, (match) => {
+    const token = `__MATH_${placeholders.length}__`;
+    placeholders.push(match);
+    return token;
+  });
+  out = out.replace(/(?<!\$)\$(?!\$)([^$]+?)\$(?!\$)/g, (match) => {
+    const token = `__MATH_${placeholders.length}__`;
+    placeholders.push(match);
+    return token;
+  });
+
+  const inline = 'em|i|b|strong|span|u|sub|sup|a|mark|small|label';
+  out = out
+    .replace(new RegExp(`([A-Za-z0-9.,;:!?%])(<(?:${inline})\\b)`, 'gi'), '$1 $2')
+    .replace(new RegExp(`(<\\/(?:${inline})>)([A-Za-z0-9])`, 'gi'), '$1 $2')
+    .replace(/([A-Za-z0-9.,;:!?%>])(__MATH_\d+__)/g, '$1 $2')
+    .replace(/(__MATH_\d+__)([A-Za-z])/g, '$1 $2')
+    .replace(/\.([A-Z])/g, '. $1');
+
+  for (let index = placeholders.length - 1; index >= 0; index--) {
+    // replace() interprète $$ dans la chaîne de remplacement — utiliser une fonction
+    out = out.replace(`__MATH_${index}__`, () => placeholders[index]);
+  }
+
+  return out;
+}
+
+/**
  * Extrait le texte d'un HTML (pour les excerpts)
  */
 export function stripHtml(html: string): string {
   if (!html || typeof html !== 'string') return '';
   return html
-    .replace(/<[^>]*>/g, '')
+    .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 

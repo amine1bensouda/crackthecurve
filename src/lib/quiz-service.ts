@@ -2,6 +2,7 @@ import { prisma } from './db';
 import type { Quiz, Question, Category } from './types';
 import { normalizeMediaUrl, normalizeUploadUrlsInHtml } from './media-url';
 import { INDEXABLE_QUIZ_WHERE, PUBLISHED_QUIZ_WHERE } from './quiz-filters';
+import { restoreQuestionMarkup } from './utils';
 
 /**
  * Service pour gérer les quiz avec Prisma
@@ -320,17 +321,17 @@ export function convertPrismaQuizToQuiz(prismaQuiz: any): Quiz {
 
     return {
       id: q.id,
-      texte_question: normalizeUploadUrlsInHtml(q.text || ''),
+      texte_question: normalizeUploadUrlsInHtml(restoreQuestionMarkup(q.text || '')),
       type_question: typeQuestion,
-      explication: normalizeUploadUrlsInHtml(q.explanation || ''),
+      explication: normalizeUploadUrlsInHtml(restoreQuestionMarkup(q.explanation || '')),
       points: q.points,
       temps_limite: q.timeLimit || undefined,
       reponses: answers
         .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
         .map((a: any) => ({
-          texte: normalizeUploadUrlsInHtml(a.text || ''),
+          texte: normalizeUploadUrlsInHtml(restoreQuestionMarkup(a.text || '')),
           correcte: a.isCorrect || false,
-          explication: normalizeUploadUrlsInHtml(a.explanation || ''),
+          explication: normalizeUploadUrlsInHtml(restoreQuestionMarkup(a.explanation || '')),
           imageUrl: normalizeMediaUrl(a.imageUrl),
         })),
     };
