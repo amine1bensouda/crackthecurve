@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Quiz, Question } from '@/lib/types';
 import MathRenderer from './MathRenderer';
+import HtmlWithMathRenderer from '@/components/Common/HtmlWithMathRenderer';
 import QuizCorrectionSidebar from './QuizCorrectionSidebar';
+import { questionStemNeedsHtmlRenderer } from '@/lib/utils';
 
 interface QuizCorrectionProps {
   quiz: Quiz;
@@ -81,10 +83,12 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
           </div>
 
           {/* Question Text */}
-          <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
+          <div className="mb-8 quiz-exam-text">
+            {questionStemNeedsHtmlRenderer(questionText) ? (
+              <HtmlWithMathRenderer html={questionText || ''} />
+            ) : (
               <MathRenderer text={questionText || ''} />
-            </h2>
+            )}
           </div>
 
           {/* Correct Answer */}
@@ -97,13 +101,13 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                   </svg>
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-[#3f7267] mb-2">Correct Answer:</h3>
-                    <p className="text-[#3f7267] font-medium text-lg">
+                    <div className="quiz-exam-text text-[#3f7267]">
                       <MathRenderer text={correctAnswer.texte || ''} />
-                    </p>
+                    </div>
                     {correctAnswer.explication && (
-                      <p className="text-sm text-[#3f7267] mt-3 italic">
+                      <div className="quiz-exam-text text-[#3f7267] mt-3">
                         <MathRenderer text={correctAnswer.explication} />
-                      </p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -116,7 +120,9 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                   {answers.length > 0 && answers[0]?.texte ? (
                     <>
                       <span className="font-bold">Expected Answer:</span>{' '}
-                      <MathRenderer text={answers[0].texte} />
+                      <span className="quiz-exam-text">
+                        <MathRenderer text={answers[0].texte} />
+                      </span>
                     </>
                   ) : (
                     'This is an open-ended question. Multiple answers may be acceptable.'
@@ -170,13 +176,13 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                           {String.fromCharCode(65 + index)}
                         </div>
                         <div className="flex-1">
-                          <p className={`font-medium ${isCorrect ? 'text-[#3f7267]' : 'text-[#2c3c5e]'}`}>
+                          <div className={`quiz-exam-text ${isCorrect ? 'text-[#3f7267]' : ''}`}>
                             <MathRenderer text={answer.texte || ''} />
-                          </p>
+                          </div>
                           {answer.explication && (
-                            <p className="text-sm text-[#6b7180] mt-2 italic">
+                            <div className="quiz-exam-text text-[#6b7180] mt-2">
                               <MathRenderer text={answer.explication} />
-                            </p>
+                            </div>
                           )}
                         </div>
                         {isCorrect && (
@@ -199,9 +205,9 @@ export default function QuizCorrection({ quiz }: QuizCorrectionProps) {
                 <span className="text-lg">💡</span>
                 Detailed Explanation:
               </p>
-              <p className="text-sm text-[#6b7180] leading-relaxed">
+              <div className="quiz-exam-text text-[#6b7180]">
                 <MathRenderer text={explication} />
-              </p>
+              </div>
             </div>
           )}
 

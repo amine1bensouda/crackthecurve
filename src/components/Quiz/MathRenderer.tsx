@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 import { latexInDoubleDollarsShouldUseBlockDisplay } from '@/lib/utils';
+import { latexNeedsKatex, simpleLatexToTimesHtml } from '@/lib/exam-math';
 
 interface MathRendererProps {
   text: string;
@@ -405,6 +406,20 @@ export default function MathRenderer({ text, className = '', useMathJax = false 
         }
 
         try {
+          const timesHtml =
+            !part.isBlock && !latexNeedsKatex(part.formula)
+              ? simpleLatexToTimesHtml(part.formula)
+              : null;
+          if (timesHtml !== null) {
+            const hasLetter = /[A-Za-zα-ωΑ-Ω]/.test(part.formula.replace(/\\text\{[\s\S]*?\}/g, ''));
+            return (
+              <span key={index} className={hasLetter ? 'quiz-exam-var' : 'quiz-exam-roman'}>
+                <span dangerouslySetInnerHTML={{ __html: timesHtml }} />
+                {part.trailingPunct}
+              </span>
+            );
+          }
+
           if (part.isBlock) {
             return (
               <span key={index} className="quiz-math-block my-2 block overflow-x-auto">

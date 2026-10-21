@@ -115,7 +115,7 @@ export default function Question({
     
     return (
       <div className="card-modern p-8">
-        <h2 className="text-2xl font-bold text-[#2c3c5e] mb-4">{questionText}</h2>
+        <div className="quiz-exam-text mb-4">{questionText}</div>
         <div className="space-y-2">
           <p className="text-[#95586b] font-semibold">No answers available for this question.</p>
           <p className="text-sm text-[#6b7180]">
@@ -169,19 +169,15 @@ export default function Question({
           </div>
         )}
 
-        {/* Texte de la question */}
-        <div className="mb-8">
+        {/* Texte de la question — même corps qu'un énoncé d'examen */}
+        <div className="mb-8 quiz-exam-text">
           {needsHtmlRenderer ? (
-            <div className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
-              <HtmlWithMathRenderer 
-                html={questionText || ''}
-                className="prose prose-lg max-w-none"
-              />
-            </div>
+            <HtmlWithMathRenderer
+              html={questionText || ''}
+              className="max-w-none"
+            />
           ) : (
-            <h2 className="text-2xl md:text-3xl font-bold text-[#2c3c5e] leading-relaxed">
-              <MathRenderer text={cleanedQuestionText || ''} />
-            </h2>
+            <MathRenderer text={cleanedQuestionText || ''} />
           )}
         </div>
 
@@ -226,7 +222,7 @@ export default function Question({
                         : 'bg-[#f8f2e7] border-[#2c3c5e]'
                     }`}>
                       <p className="text-sm font-semibold text-[#2c3c5e] mb-2">Expected Answer:</p>
-                      <div className="text-sm text-[#6b7180]">
+                      <div className="quiz-exam-text text-[#6b7180]">
                         <HtmlWithMathRenderer html={answers[0].texte} />
                       </div>
                     </div>
@@ -234,9 +230,9 @@ export default function Question({
                   {explication && (
                     <div className="p-4 rounded-[10px] bg-[#f8f2e7] border-l-4 border-[#2c3c5e]">
                       <p className="text-sm font-semibold text-[#2c3c5e] mb-2">Explanation:</p>
-                      <p className="text-sm text-[#6b7180]">
+                      <div className="quiz-exam-text text-[#6b7180]">
                         <MathRenderer text={explication} />
-                      </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -316,11 +312,11 @@ export default function Question({
                         />
                       </div>
                     )}
-                    <div className="font-semibold text-[#2c3c5e] text-lg leading-relaxed [&_.ql-editor]:p-0">
+                    <div className="quiz-exam-text [&_.ql-editor]:p-0">
                       <HtmlWithMathRenderer html={answer.texte || ''} />
                     </div>
                     {showResult && answer.explication && (
-                      <div className="text-sm text-[#6b7180] mt-3 italic leading-relaxed bg-[#f8f2e7] p-3 rounded-lg">
+                      <div className="quiz-exam-text text-[#6b7180] mt-3 leading-relaxed bg-[#f8f2e7] p-3 rounded-lg">
                         💡 <HtmlWithMathRenderer html={answer.explication || ''} />
                       </div>
                     )}
@@ -348,9 +344,9 @@ export default function Question({
               <span className="text-lg">💡</span>
               Detailed Explanation:
             </p>
-            <p className="text-sm text-[#6b7180] leading-relaxed">
+            <div className="quiz-exam-text text-[#6b7180]">
               <MathRenderer text={explication || ''} />
-            </p>
+            </div>
           </div>
         )}
       </div>

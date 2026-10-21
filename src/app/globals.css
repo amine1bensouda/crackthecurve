@@ -257,3 +257,44 @@ body {
     display: block;
   }
 }
+
+/* Texte d'examen : énoncé / réponses / explications uniquement */
+.quiz-exam-text {
+  font-family: 'Times New Roman', Times, 'Liberation Serif', Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: #2c3c5e;
+}
+
+.quiz-exam-text p,
+.quiz-exam-text .prose {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.quiz-exam-var {
+  font-family: 'Times New Roman', Times, 'Liberation Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1em;
+  white-space: nowrap;
+}
+
+.quiz-exam-var sub,
+.quiz-exam-var sup {
+  font-size: 0.72em;
+  font-style: italic;
+  line-height: 0;
+}
+
+.quiz-exam-roman {
+  font-style: normal;
+  font-family: 'Times New Roman', Times, 'Liberation Serif', Georgia, serif;
+}
+
+.quiz-exam-text .katex {
+  font-size: 1.05em;
+}
