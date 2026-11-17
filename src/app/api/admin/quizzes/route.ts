@@ -61,6 +61,12 @@ export async function POST(request: NextRequest) {
     const safeMaxQuestions = Number.isFinite(maxQuestionsNum) && maxQuestionsNum >= 0 ? maxQuestionsNum : null;
 
     const questionsPayload = Array.isArray(rawQuestions) ? rawQuestions : [];
+    const lastOrder = await prisma.quiz.aggregate({
+      where: { moduleId: safeModuleId },
+      _max: { order: true },
+    });
+    const nextOrder = (lastOrder._max.order ?? -1) + 1;
+
     const questionsCreate = questionsPayload.map((q: any, index: number) => ({
       text: (q.text ?? q.texte_question ?? '').toString().trim() || 'Question',
       type: (q.type ?? q.type_question ?? 'multiple_choice').toString(),
@@ -94,6 +100,7 @@ export async function POST(request: NextRequest) {
         randomizeOrder: Boolean(randomizeOrder),
         maxQuestions: safeMaxQuestions,
         featuredImageUrl: (featuredImageUrl != null && featuredImageUrl !== '') ? String(featuredImageUrl) : null,
+        order: nextOrder,
         questions: { create: questionsCreate },
       },
       include: {

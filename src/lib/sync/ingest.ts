@@ -148,7 +148,7 @@ export async function ingestQuizFromPremium(payload: SyncQuizPayload) {
     randomizeOrder: payload.quiz.randomizeOrder,
     maxQuestions: payload.quiz.maxQuestions,
     featuredImageUrl: payload.quiz.featuredImageUrl,
-    order: payload.quiz.order,
+    order: existing ? existing.order : payload.quiz.order,
     moduleId,
     sourceQuizId: payload.sourceQuizId,
     sourceSyncedAt: now,

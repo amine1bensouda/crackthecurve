@@ -29,9 +29,7 @@ export async function GET(
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
 
     const converted = quizzes.map(convertPrismaQuizToQuiz);

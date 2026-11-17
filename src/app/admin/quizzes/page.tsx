@@ -1,12 +1,18 @@
 import Link from 'next/link';
-import DeleteQuizButton from '@/components/Admin/DeleteQuizButton';
-import { difficultyToEnglish, stripHtml } from '@/lib/utils';
-import { getAllQuiz } from '@/lib/quiz-service';
+import QuizModuleTable, { type AdminQuizRow } from '@/components/Admin/QuizModuleTable';
+import { prisma } from '@/lib/db';
 
-type GroupedQuizzes = {
-  [courseTitle: string]: {
-    [moduleTitle: string]: any[];
-  };
+type ModuleGroup = {
+  moduleId: string | null;
+  moduleTitle: string;
+  moduleOrder: number;
+  quizzes: AdminQuizRow[];
+};
+
+type CourseGroup = {
+  courseId: string | null;
+  courseTitle: string;
+  modules: ModuleGroup[];
 };
 
 export default async function AdminQuizzesPage({
@@ -14,46 +20,91 @@ export default async function AdminQuizzesPage({
 }: {
   searchParams?: { q?: string };
 }) {
-  const quizzes = await getAllQuiz();
+  const searchQuery = searchParams?.q?.trim() || '';
 
-  const searchQuery = searchParams?.q?.toLowerCase().trim() || '';
+  const [quizzes, allQuizzesCount] = await Promise.all([
+    prisma.quiz.findMany({
+      where: searchQuery
+        ? {
+            OR: [
+              { title: { contains: searchQuery, mode: 'insensitive' } },
+              { slug: { contains: searchQuery, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        difficulty: true,
+        order: true,
+        module: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            course: {
+              select: { id: true, title: true },
+            },
+          },
+        },
+        _count: {
+          select: { questions: true },
+        },
+      },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+    }),
+    prisma.quiz.count(),
+  ]);
 
-  const grouped: GroupedQuizzes = {};
+  const courseMap = new Map<string, { courseId: string | null; courseTitle: string; modules: Map<string, ModuleGroup> }>();
 
   for (const quiz of quizzes) {
-    const rawTitle =
-      typeof quiz.title === 'string'
-        ? quiz.title
-        : quiz.title?.rendered || '';
-    const slug = quiz.slug || '';
+    const courseId = quiz.module?.course?.id ?? null;
+    const courseKey = courseId ?? '__none__';
+    const courseTitle = quiz.module?.course?.title || 'Unassigned course';
+    const moduleId = quiz.module?.id ?? null;
+    const moduleKey = moduleId ?? '__none__';
 
-    const matchesSearch =
-      !searchQuery ||
-      rawTitle.toLowerCase().includes(searchQuery) ||
-      slug.toLowerCase().includes(searchQuery);
-
-    if (!matchesSearch) {
-      continue;
+    if (!courseMap.has(courseKey)) {
+      courseMap.set(courseKey, { courseId, courseTitle, modules: new Map() });
     }
 
-    // On récupère les infos de cours/module depuis les champs ACF convertis,
-    // et on garde l'accès à quiz.module uniquement en any pour éviter l'erreur TS.
-    const anyQuiz = quiz as any;
-    const courseTitle =
-      anyQuiz.module?.course?.title || 'Unassigned course';
-    const moduleTitle =
-      quiz.acf?.categorie || anyQuiz.module?.title || 'Unassigned module';
+    const course = courseMap.get(courseKey)!;
+    if (!course.modules.has(moduleKey)) {
+      course.modules.set(moduleKey, {
+        moduleId,
+        moduleTitle: quiz.module?.title || 'Unassigned module',
+        moduleOrder: quiz.module?.order ?? Number.MAX_SAFE_INTEGER,
+        quizzes: [],
+      });
+    }
 
-    if (!grouped[courseTitle]) {
-      grouped[courseTitle] = {};
-    }
-    if (!grouped[courseTitle][moduleTitle]) {
-      grouped[courseTitle][moduleTitle] = [];
-    }
-    grouped[courseTitle][moduleTitle].push(quiz);
+    course.modules.get(moduleKey)!.quizzes.push({
+      id: quiz.id,
+      title: quiz.title,
+      slug: quiz.slug,
+      description: quiz.description,
+      difficulty: quiz.difficulty,
+      order: quiz.order,
+      questionCount: quiz._count.questions,
+    });
   }
 
-  const allQuizzesCount = quizzes.length;
+  const grouped: CourseGroup[] = [...courseMap.values()]
+    .map((course) => ({
+      courseId: course.courseId,
+      courseTitle: course.courseTitle,
+      modules: [...course.modules.values()].sort((a, b) => a.moduleOrder - b.moduleOrder || a.moduleTitle.localeCompare(b.moduleTitle)),
+    }))
+    .sort((a, b) => {
+      if (!a.courseId) return 1;
+      if (!b.courseId) return -1;
+      return a.courseTitle.localeCompare(b.courseTitle);
+    });
+
+  const canReorder = !searchQuery;
 
   return (
     <div className="space-y-6">
@@ -97,24 +148,25 @@ export default async function AdminQuizzesPage({
         </div>
       </div>
 
-      {allQuizzesCount > 0 ? (
+      {searchQuery && (
+        <p className="text-sm text-gray-600">
+          Clear the search to change quiz order. Arrows are hidden while a filter is active.
+        </p>
+      )}
+
+      {quizzes.length > 0 ? (
         <div className="space-y-8">
-          {Object.entries(grouped).map(([courseTitle, modules]) => {
-            const courseQuizCount = Object.values(modules).reduce(
-              (acc, moduleQuizzes) => acc + (moduleQuizzes as any[]).length,
-              0
-            );
+          {grouped.map((course) => {
+            const courseQuizCount = course.modules.reduce((acc, moduleGroup) => acc + moduleGroup.quizzes.length, 0);
 
             return (
               <section
-                key={courseTitle}
+                key={course.courseId ?? 'unassigned-course'}
                 className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
               >
                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {courseTitle}
-                    </h2>
+                    <h2 className="text-xl font-semibold text-gray-900">{course.courseTitle}</h2>
                     <p className="text-sm text-gray-500">
                       {courseQuizCount} quiz
                       {courseQuizCount > 1 ? 'zes' : ''} in this course
@@ -123,126 +175,25 @@ export default async function AdminQuizzesPage({
                 </div>
 
                 <div className="divide-y divide-gray-200">
-                  {Object.entries(modules).map(([moduleTitle, moduleQuizzes]) => {
-                    const list = moduleQuizzes as any[];
-                    if (list.length === 0) return null;
-
-                    return (
-                      <div key={moduleTitle} className="px-4 py-4">
-                        <div className="flex items-center justify-between mb-3 px-2">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {moduleTitle}
-                            </h3>
-                            <p className="text-xs text-gray-500">
-                              {list.length} quiz
-                              {list.length > 1 ? 'zes' : ''} in this
-                              module
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                          <table className="w-full">
-                            <thead className="bg-gray-50 border-b border-gray-200">
-                              <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                  Title
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                  Slug
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                  Questions
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                  Difficulty
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                  Actions
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                              {list.map((quiz: any) => (
-                                <tr
-                                  key={quiz.prismaId ?? quiz.id}
-                                  className="hover:bg-gray-50 transition-colors"
-                                >
-                                  <td className="px-6 py-3">
-                                    <div className="font-semibold text-gray-900">
-                                      {typeof quiz.title === 'string'
-                                        ? quiz.title
-                                        : quiz.title?.rendered || 'No title'}
-                                    </div>
-                                    {quiz.content?.rendered && (
-                                      <div className="text-sm text-gray-500 mt-1 truncate max-w-xl">
-                                        {stripHtml(quiz.content.rendered)}
-                                      </div>
-                                    )}
-                                  </td>
-                                  <td className="px-6 py-3">
-                                    <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-700">
-                                      {quiz.slug}
-                                    </code>
-                                  </td>
-                                  <td className="px-6 py-3 text-gray-700">
-                                    {quiz.acf?.questions?.length ||
-                                      quiz.acf?.nombre_questions ||
-                                      0}
-                                  </td>
-                                  <td className="px-6 py-3">
-                                    {(() => {
-                                      const d = quiz.acf?.niveau_difficulte;
-                                      const isEmpty =
-                                        !d ||
-                                        String(d).trim() === '' ||
-                                        d === 'Moyen';
-                                      const label = isEmpty
-                                        ? 'Not specified'
-                                        : difficultyToEnglish(d);
-                                      return (
-                                        <span
-                                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                            isEmpty
-                                              ? 'bg-gray-100 text-gray-600'
-                                              : 'bg-indigo-100 text-indigo-800'
-                                          }`}
-                                        >
-                                          {label}
-                                        </span>
-                                      );
-                                    })()}
-                                  </td>
-                                  <td className="px-6 py-3">
-                                    <div className="flex items-center space-x-2">
-                                      <Link
-                                        href={`/admin/quizzes/${encodeURIComponent(
-                                          quiz.slug
-                                        )}/edit`}
-                                        className="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-                                      >
-                                        Edit
-                                      </Link>
-                                      <DeleteQuizButton
-                                        quizId={quiz.prismaId ?? String(quiz.id)}
-                                        quizTitle={
-                                          typeof quiz.title === 'string'
-                                            ? quiz.title
-                                            : quiz.title?.rendered ||
-                                              'No title'
-                                        }
-                                      />
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                  {course.modules.map((moduleGroup) => (
+                    <div key={moduleGroup.moduleId ?? 'unassigned-module'} className="px-4 py-4">
+                      <div className="flex items-center justify-between mb-3 px-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{moduleGroup.moduleTitle}</h3>
+                          <p className="text-xs text-gray-500">
+                            {moduleGroup.quizzes.length} quiz
+                            {moduleGroup.quizzes.length > 1 ? 'zes' : ''} in this module
+                            {canReorder ? '. Use the arrows to set the public order.' : ''}
+                          </p>
                         </div>
                       </div>
-                    );
-                  })}
+                      <QuizModuleTable
+                        key={`${moduleGroup.moduleId ?? 'unassigned'}-${searchQuery}`}
+                        quizzes={moduleGroup.quizzes}
+                        canReorder={canReorder}
+                      />
+                    </div>
+                  ))}
                 </div>
               </section>
             );
@@ -251,16 +202,20 @@ export default async function AdminQuizzesPage({
       ) : (
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
           <div className="text-6xl mb-4">📝</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">No quizzes</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            {searchQuery ? 'No matching quizzes' : 'No quizzes'}
+          </h3>
           <p className="text-gray-600 mb-6">
-            Start by creating your first quiz
+            {searchQuery ? 'Try another title or slug.' : 'Start by creating your first quiz'}
           </p>
-          <Link
-            href="/admin/quizzes/new"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-medium"
-          >
-            Create a quiz
-          </Link>
+          {!searchQuery && (
+            <Link
+              href="/admin/quizzes/new"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-medium"
+            >
+              Create a quiz
+            </Link>
+          )}
         </div>
       )}
     </div>
