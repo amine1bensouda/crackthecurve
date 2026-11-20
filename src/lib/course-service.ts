@@ -56,53 +56,6 @@ export async function getAllPublishedCourses() {
   }
 }
 
-export type PublishedCourseSummary = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string | null;
-  moduleCount: number;
-  totalQuizzes: number;
-};
-
-/**
- * Résumé des cours publiés pour les listes et les cours liés.
- */
-export async function getPublishedCoursesSummary(): Promise<PublishedCourseSummary[]> {
-  try {
-    const courses = await prisma.course.findMany({
-      where: { status: 'published' },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        description: true,
-        modules: {
-          select: {
-            quizzes: {
-              where: INDEXABLE_QUIZ_WHERE,
-              select: { id: true },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return courses.map((course) => ({
-      id: course.id,
-      title: course.title,
-      slug: course.slug,
-      description: course.description,
-      moduleCount: course.modules.length,
-      totalQuizzes: course.modules.reduce((sum, module) => sum + module.quizzes.length, 0),
-    }));
-  } catch (error) {
-    console.error('Erreur getPublishedCoursesSummary:', error);
-    return [];
-  }
-}
-
 /**
  * Récupère un cours par son slug avec ses modules et quiz
  */
